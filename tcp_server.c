@@ -10,17 +10,25 @@
 
 int client_socket;
 
+pthread_mutex_t print_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+void print_message(const char* prefix, const char* msg) {
+    pthread_mutex_lock(&print_mutex);
+    printf("\r%s: %s\n> ", prefix, msg);
+    fflush(stdout);
+    pthread_mutex_unlock(&print_mutex);
+}
+
 void* receive_messages(void* arg) {
     char buffer[BUFFER_SIZE];
     while (1) {
         memset(buffer, 0, BUFFER_SIZE);
         int bytes = recv(client_socket, buffer, BUFFER_SIZE, 0);
         if (bytes <= 0) {
-            printf("\nClient disconnected.\n");
+            print_message("System", "Client disconnected.");
             exit(0);
         }
-        printf("\nClient: %s\nServer: ", buffer);
-        fflush(stdout);
+        print_message("Client", buffer);
     }
     return NULL;
 }
@@ -28,12 +36,12 @@ void* receive_messages(void* arg) {
 void* send_messages(void* arg) {
     char message[BUFFER_SIZE];
     while (1) {
-        printf("Server: ");
+        printf("> ");
         fgets(message, BUFFER_SIZE, stdin);
         message[strcspn(message, "\n")] = '\0';
         send(client_socket, message, strlen(message), 0);
         if (strcmp(message, "exit") == 0) {
-            printf("Chat ended by server.\n");
+            print_message("System", "Chat ended by server.");
             exit(0);
         }
     }
