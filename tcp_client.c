@@ -9,6 +9,14 @@
 #define BUFFER_SIZE 1024
 
 int sock;
+pthread_mutex_t print_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+void print_message(const char* prefix, const char* msg) {
+    pthread_mutex_lock(&print_mutex);
+    printf("\r%s: %s\n> ", prefix, msg);
+    fflush(stdout);
+    pthread_mutex_unlock(&print_mutex);
+}
 
 void* receive_messages(void* arg) {
     char buffer[BUFFER_SIZE];
@@ -16,11 +24,10 @@ void* receive_messages(void* arg) {
         memset(buffer, 0, BUFFER_SIZE);
         int bytes = recv(sock, buffer, BUFFER_SIZE, 0);
         if (bytes <= 0) {
-            printf("\nServer disconnected.\n");
+            print_message("System", "Server disconnected.");
             exit(0);
         }
-        printf("\nServer: %s\nClient: ", buffer);
-        fflush(stdout);
+        print_message("Server", buffer);
     }
     return NULL;
 }
@@ -28,12 +35,12 @@ void* receive_messages(void* arg) {
 void* send_messages(void* arg) {
     char message[BUFFER_SIZE];
     while (1) {
-        printf("Client: ");
+        printf("> ");
         fgets(message, BUFFER_SIZE, stdin);
         message[strcspn(message, "\n")] = '\0';
         send(sock, message, strlen(message), 0);
         if (strcmp(message, "exit") == 0) {
-            printf("Chat ended by client.\n");
+            print_message("System", "Chat ended by client.");
             exit(0);
         }
     }
@@ -41,7 +48,6 @@ void* send_messages(void* arg) {
 }
 
 int main() {
-    printf("M R KRISHNI 24BCE1704\n");
     struct sockaddr_in serv_addr;
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
