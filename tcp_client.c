@@ -8,7 +8,7 @@
 #define BUFFER_SIZE 1024
 
 int main() {
-  printf("M R KRISHNI 24BCE1704\n")
+  printf("M R KRISHNI 24BCE1704\n");
     int sock = 0;
     struct sockaddr_in serv_addr;
     char buffer[BUFFER_SIZE] = {0};
