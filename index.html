@@ -395,129 +395,6 @@
       to { opacity: 0; transform: translateY(-6px); }
     }
 
-    /* Modal Styles */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.7);
-      backdrop-filter: blur(5px);
-    }
-
-    .modal-content {
-      background-color: var(--panel);
-      margin: 5% auto;
-      padding: 30px;
-      border-radius: 12px;
-      border: 1px solid rgba(94,234,212,0.3);
-      width: 80%;
-      max-width: 800px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-      position: relative;
-      animation: modalFadeIn 0.3s;
-    }
-
-    @keyframes modalFadeIn {
-      from { opacity: 0; transform: translateY(-50px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .close {
-      color: var(--muted);
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: color 0.3s;
-    }
-
-    .close:hover {
-      color: var(--accent);
-    }
-
-    .modal-header {
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .modal-header h2 {
-      margin: 0;
-      border: none;
-      padding: 0;
-    }
-
-    .team-member {
-      display: flex;
-      align-items: center;
-      margin-bottom: 20px;
-      padding: 15px;
-      background: rgba(255,255,255,0.03);
-      border-radius: 8px;
-    }
-
-    .member-photo {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: rgba(94,234,212,0.1);
-      margin-right: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--accent);
-      font-size: 24px;
-    }
-
-    .member-info h3 {
-      margin: 0 0 5px 0;
-    }
-
-    .member-info p {
-      margin: 0;
-      color: var(--muted);
-    }
-
-    .video-container {
-      position: relative;
-      padding-bottom: 56.25%; /* 16:9 aspect ratio */
-      height: 0;
-      overflow: hidden;
-      margin: 20px 0;
-      border-radius: 8px;
-      background: #000;
-    }
-
-    .video-container iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-
-    .help-steps {
-      margin: 20px 0;
-    }
-
-    .help-step {
-      margin-bottom: 15px;
-      padding: 15px;
-      background: rgba(255,255,255,0.03);
-      border-radius: 8px;
-    }
-
-    .help-step h4 {
-      margin: 0 0 10px 0;
-      color: var(--accent);
-    }
-
     .download-btn {
       display: inline-block;
       padding: 12px 24px;
@@ -564,192 +441,6 @@
     <p class="subtitle">Design Your Own Protocol - Computer Networks Project</p>
     <p class="subtitle" style="margin-top: 10px; font-size: 0.95em;">A Custom Application-Layer Protocol with Reliable Message Delivery</p>
   </header>
-
-  <!-- Modal for Developed By -->
-  <div id="developedByModal" class="modal">
-    <div class="modal-content">
-      <span class="close" id="closeDevelopedBy">&times;</span>
-      <div class="modal-header">
-        <h2>Developed By</h2>
-      </div>
-      <div class="team-member">
-        <div class="member-photo">👤</div>
-        <div class="member-info">
-          <h3>Your Name</h3>
-          <p>Registration Number: [Your Reg No]</p>
-        </div>
-      </div>
-      <div class="team-member">
-        <div class="member-photo">👤</div>
-        <div class="member-info">
-          <h3>Team Member 2</h3>
-          <p>Registration Number: [Reg No]</p>
-        </div>
-      </div>
-      <div class="team-member">
-        <div class="member-photo">👤</div>
-        <div class="member-info">
-          <h3>Team Member 3</h3>
-          <p>Registration Number: [Reg No]</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal for Learn -->
-  <div id="learnModal" class="modal">
-    <div class="modal-content">
-      <span class="close" id="closeLearn">&times;</span>
-      <div class="modal-header">
-        <h2>Learn About SCP</h2>
-      </div>
-      <h3>Materials from Prescribed Textbook</h3>
-      <p>The Simple Chat Protocol (SCP) is based on concepts from computer networking textbooks, including:</p>
-      <ul>
-        <li>Application layer protocols and their design principles</li>
-        <li>TCP socket programming fundamentals</li>
-        <li>Reliability mechanisms in network communication</li>
-        <li>Error detection and correction techniques</li>
-        <li>Protocol state machines and message sequencing</li>
-      </ul>
-      
-      <h3>How We Built This Project</h3>
-      <p>The SCP project was developed through the following stages:</p>
-      <ol>
-        <li><strong>Protocol Design:</strong> Defined message formats, types, and communication flow</li>
-        <li><strong>Implementation:</strong> Coded client and server applications using TCP sockets</li>
-        <li><strong>Testing:</strong> Verified functionality under various network conditions</li>
-        <li><strong>Documentation:</strong> Created comprehensive documentation and visualization</li>
-        <li><strong>Web Interface:</strong> Developed this interactive website to demonstrate the protocol</li>
-      </ol>
-      
-      <h3>Project Video</h3>
-      <div class="video-container">
-        <!-- Placeholder for project video -->
-        <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: rgba(0,0,0,0.5); color: white;">
-          <p>Animated video about SCP would be embedded here</p>
-        </div>
-      </div>
-      
-      <h3>References</h3>
-      <ul>
-        <li>Computer Networks by Andrew S. Tanenbaum</li>
-        <li>TCP/IP Illustrated by W. Richard Stevens</li>
-        <li>Unix Network Programming by W. Richard Stevens</li>
-        <li>RFC 793 - Transmission Control Protocol</li>
-        <li>Beej's Guide to Network Programming</li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- Modal for Help -->
-  <div id="helpModal" class="modal">
-    <div class="modal-content">
-      <span class="close" id="closeHelp">&times;</span>
-      <div class="modal-header">
-        <h2>Help - How to Use SCP</h2>
-      </div>
-      
-      <h3>Getting Started</h3>
-      <p>Follow these steps to execute and use the Simple Chat Protocol project:</p>
-      
-      <div class="help-steps">
-        <div class="help-step">
-          <h4>Step 1: Compile the Code</h4>
-          <p>Use the provided Makefile or compile manually using GCC:</p>
-          <div class="code-block">
-            <pre>$ make</pre>
-          </div>
-          <p>This will create two executables: <code>scp_server</code> and <code>scp_client</code>.</p>
-        </div>
-        
-        <div class="help-step">
-          <h4>Step 2: Start the Server</h4>
-          <p>In one terminal, run the server application:</p>
-          <div class="code-block">
-            <pre>$ ./scp_server</pre>
-          </div>
-          <p>The server will start listening on port 8080 for incoming connections.</p>
-        </div>
-        
-        <div class="help-step">
-          <h4>Step 3: Run the Client</h4>
-          <p>In another terminal, run the client application:</p>
-          <div class="code-block">
-            <pre>$ ./scp_client</pre>
-          </div>
-          <p>Follow the prompts to enter your name and connect to the server.</p>
-        </div>
-        
-        <div class="help-step">
-          <h4>Step 4: Send Messages</h4>
-          <p>Once connected, type your messages and press Enter to send them to the server.</p>
-          <p>The client will automatically handle acknowledgments and retransmissions if needed.</p>
-        </div>
-        
-        <div class="help-step">
-          <h4>Step 5: Disconnect</h4>
-          <p>Type "quit" to gracefully disconnect from the server and close the connection.</p>
-        </div>
-      </div>
-      
-      <h3>Correct Execution Flow</h3>
-      <ol>
-        <li>Server starts and listens for connections</li>
-        <li>Client connects and sends HELLO message</li>
-        <li>Server acknowledges HELLO with ACK</li>
-        <li>Client sends MSG messages</li>
-        <li>Server acknowledges each MSG with ACK</li>
-        <li>If ACK not received, client retransmits after timeout</li>
-        <li>Client sends BYE message to disconnect</li>
-        <li>Server acknowledges BYE and closes connection</li>
-      </ol>
-      
-      <h3>Interpreting Results</h3>
-      <p>The protocol simulator on this website demonstrates:</p>
-      <ul>
-        <li><strong>Message Flow:</strong> Shows how messages travel between client and server</li>
-        <li><strong>ACK Mechanism:</strong> Displays acknowledgment messages confirming receipt</li>
-        <li><strong>Timeout Handling:</strong> Illustrates what happens when acknowledgments are delayed or lost</li>
-        <li><strong>Retransmissions:</strong> Shows how the protocol recovers from packet loss</li>
-      </ul>
-      
-      <h3>Graph Interpretation</h3>
-      <p>The protocol visualization shows:</p>
-      <ul>
-        <li>Message direction (client to server or vice versa)</li>
-        <li>Message types (HELLO, MSG, ACK, BYE)</li>
-        <li>Message IDs for tracking and correlation</li>
-        <li>Successful deliveries and retransmissions</li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- Modal for Download -->
-  <div id="downloadModal" class="modal">
-    <div class="modal-content">
-      <span class="close" id="closeDownload">&times;</span>
-      <div class="modal-header">
-        <h2>Download Project Files</h2>
-      </div>
-      
-      <h3>Source Code</h3>
-      <p>Download the complete source code for the Simple Chat Protocol:</p>
-      <a href="#" class="download-btn" onclick="downloadFile('scp_server.c', getServerCode()); return false;">Download scp_server.c</a>
-      <a href="#" class="download-btn" onclick="downloadFile('scp_client.c', getClientCode()); return false;">Download scp_client.c</a>
-      <a href="#" class="download-btn" onclick="downloadFile('Makefile', getMakefile()); return false;">Download Makefile</a>
-      
-      <h3>Project Documentation</h3>
-      <p>Download comprehensive documentation about the SCP protocol:</p>
-      <a href="#" class="download-btn" onclick="downloadFile('SCP_Protocol_Specification.pdf', getProtocolSpec()); return false;">Download Protocol Specification</a>
-      <a href="#" class="download-btn" onclick="downloadFile('SCP_Implementation_Guide.pdf', getImplementationGuide()); return false;">Download Implementation Guide</a>
-      
-      <h3>Example Inputs and Outputs</h3>
-      <p>Download sample inputs and outputs to understand the protocol behavior:</p>
-      <a href="#" class="download-btn" onclick="downloadFile('example_session.txt', getExampleSession()); return false;">Download Example Session</a>
-      <a href="#" class="download-btn" onclick="downloadFile('hamming_code_example.txt', getHammingExample()); return false;">Download Hamming Code Example</a>
-    </div>
-  </div>
 
   <!-- ALL ORIGINAL CONTENT PRESERVED BELOW -->
   <nav class="nav-tabs">
@@ -1931,70 +1622,413 @@ Client Output (with simulated delay):
 </div>
 
 <script>
-  // Modal functionality
+  // New window functionality for top buttons
   const developedByBtn = document.getElementById('developedByBtn');
   const learnBtn = document.getElementById('learnBtn');
   const helpBtn = document.getElementById('helpBtn');
   const downloadBtn = document.getElementById('downloadBtn');
   
-  const developedByModal = document.getElementById('developedByModal');
-  const learnModal = document.getElementById('learnModal');
-  const helpModal = document.getElementById('helpModal');
-  const downloadModal = document.getElementById('downloadModal');
-  
-  const closeDevelopedBy = document.getElementById('closeDevelopedBy');
-  const closeLearn = document.getElementById('closeLearn');
-  const closeHelp = document.getElementById('closeHelp');
-  const closeDownload = document.getElementById('closeDownload');
-  
-  // Open modals
+  // Open new windows for top buttons
   developedByBtn.addEventListener('click', () => {
-    developedByModal.style.display = 'block';
+    const developedByWindow = window.open('', 'DevelopedBy', 'width=600,height=500,scrollbars=yes,resizable=yes');
+    developedByWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Developed By - SCP Project</title>
+        <style>
+          body {
+            background: linear-gradient(180deg, #071018 0%, #07121a 100%);
+            color: #9aa7b2;
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            margin: 0;
+          }
+          .container {
+            max-width: 800px;
+            margin: 0 auto;
+          }
+          h1 {
+            color: #5eead4;
+            text-align: center;
+            margin-bottom: 30px;
+          }
+          .team-member {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            border: 1px solid rgba(94,234,212,0.2);
+          }
+          .member-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(94,234,212,0.1);
+            margin-right: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5eead4;
+            font-size: 24px;
+          }
+          .member-info h3 {
+            margin: 0 0 5px 0;
+            color: #7df59f;
+          }
+          .member-info p {
+            margin: 0;
+            color: #9aa7b2;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>Developed By</h1>
+          <div class="team-member">
+            <div class="member-photo">👤</div>
+            <div class="member-info">
+              <h3>Your Name</h3>
+              <p>Registration Number: [Your Reg No]</p>
+            </div>
+          </div>
+          <div class="team-member">
+            <div class="member-photo">👤</div>
+            <div class="member-info">
+              <h3>Team Member 2</h3>
+              <p>Registration Number: [Reg No]</p>
+            </div>
+          </div>
+          <div class="team-member">
+            <div class="member-photo">👤</div>
+            <div class="member-info">
+              <h3>Team Member 3</h3>
+              <p>Registration Number: [Reg No]</p>
+            </div>
+          </div>
+        </div>
+      </body>
+      </html>
+    `);
+    developedByWindow.document.close();
   });
   
   learnBtn.addEventListener('click', () => {
-    learnModal.style.display = 'block';
+    const learnWindow = window.open('', 'LearnAboutSCP', 'width=800,height=700,scrollbars=yes,resizable=yes');
+    learnWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Learn About SCP</title>
+        <style>
+          body {
+            background: linear-gradient(180deg, #071018 0%, #07121a 100%);
+            color: #9aa7b2;
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            margin: 0;
+          }
+          .container {
+            max-width: 800px;
+            margin: 0 auto;
+          }
+          h1 {
+            color: #5eead4;
+            text-align: center;
+            margin-bottom: 30px;
+          }
+          h2 {
+            color: #7df59f;
+            margin: 25px 0 15px;
+          }
+          h3 {
+            color: #9fbdb3;
+            margin: 20px 0 10px;
+          }
+          ul, ol {
+            margin: 15px 0 15px 30px;
+          }
+          li {
+            margin: 8px 0;
+          }
+          .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            margin: 20px 0;
+            border-radius: 8px;
+            background: #000;
+          }
+          .video-container div {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.5);
+            color: white;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>Learn About SCP</h1>
+          
+          <h2>Materials from Prescribed Textbook</h2>
+          <p>The Simple Chat Protocol (SCP) is based on concepts from computer networking textbooks, including:</p>
+          <ul>
+            <li>Application layer protocols and their design principles</li>
+            <li>TCP socket programming fundamentals</li>
+            <li>Reliability mechanisms in network communication</li>
+            <li>Error detection and correction techniques</li>
+            <li>Protocol state machines and message sequencing</li>
+          </ul>
+          
+          <h2>How We Built This Project</h2>
+          <p>The SCP project was developed through the following stages:</p>
+          <ol>
+            <li><strong>Protocol Design:</strong> Defined message formats, types, and communication flow</li>
+            <li><strong>Implementation:</strong> Coded client and server applications using TCP sockets</li>
+            <li><strong>Testing:</strong> Verified functionality under various network conditions</li>
+            <li><strong>Documentation:</strong> Created comprehensive documentation and visualization</li>
+            <li><strong>Web Interface:</strong> Developed this interactive website to demonstrate the protocol</li>
+          </ol>
+          
+          <h2>Project Video</h2>
+          <div class="video-container">
+            <div>
+              <p>Animated video about SCP would be embedded here</p>
+            </div>
+          </div>
+          
+          <h2>References</h2>
+          <ul>
+            <li>Computer Networks by Andrew S. Tanenbaum</li>
+            <li>TCP/IP Illustrated by W. Richard Stevens</li>
+            <li>Unix Network Programming by W. Richard Stevens</li>
+            <li>RFC 793 - Transmission Control Protocol</li>
+            <li>Beej's Guide to Network Programming</li>
+          </ul>
+        </div>
+      </body>
+      </html>
+    `);
+    learnWindow.document.close();
   });
   
   helpBtn.addEventListener('click', () => {
-    helpModal.style.display = 'block';
+    const helpWindow = window.open('', 'HelpSCP', 'width=800,height=700,scrollbars=yes,resizable=yes');
+    helpWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Help - How to Use SCP</title>
+        <style>
+          body {
+            background: linear-gradient(180deg, #071018 0%, #07121a 100%);
+            color: #9aa7b2;
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            margin: 0;
+          }
+          .container {
+            max-width: 800px;
+            margin: 0 auto;
+          }
+          h1 {
+            color: #5eead4;
+            text-align: center;
+            margin-bottom: 30px;
+          }
+          h2 {
+            color: #7df59f;
+            margin: 25px 0 15px;
+          }
+          h3 {
+            color: #9fbdb3;
+            margin: 20px 0 10px;
+          }
+          h4 {
+            color: #5eead4;
+            margin: 15px 0 8px;
+          }
+          ul, ol {
+            margin: 15px 0 15px 30px;
+          }
+          li {
+            margin: 8px 0;
+          }
+          .help-step {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            border: 1px solid rgba(94,234,212,0.2);
+          }
+          .code-block {
+            background: #000;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+            font-size: 0.9em;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>Help - How to Use SCP</h1>
+          
+          <h2>Getting Started</h2>
+          <p>Follow these steps to execute and use the Simple Chat Protocol project:</p>
+          
+          <div class="help-step">
+            <h4>Step 1: Compile the Code</h4>
+            <p>Use the provided Makefile or compile manually using GCC:</p>
+            <div class="code-block">$ make</div>
+            <p>This will create two executables: <code>scp_server</code> and <code>scp_client</code>.</p>
+          </div>
+          
+          <div class="help-step">
+            <h4>Step 2: Start the Server</h4>
+            <p>In one terminal, run the server application:</p>
+            <div class="code-block">$ ./scp_server</div>
+            <p>The server will start listening on port 8080 for incoming connections.</p>
+          </div>
+          
+          <div class="help-step">
+            <h4>Step 3: Run the Client</h4>
+            <p>In another terminal, run the client application:</p>
+            <div class="code-block">$ ./scp_client</div>
+            <p>Follow the prompts to enter your name and connect to the server.</p>
+          </div>
+          
+          <div class="help-step">
+            <h4>Step 4: Send Messages</h4>
+            <p>Once connected, type your messages and press Enter to send them to the server.</p>
+            <p>The client will automatically handle acknowledgments and retransmissions if needed.</p>
+          </div>
+          
+          <div class="help-step">
+            <h4>Step 5: Disconnect</h4>
+            <p>Type "quit" to gracefully disconnect from the server and close the connection.</p>
+          </div>
+          
+          <h2>Correct Execution Flow</h2>
+          <ol>
+            <li>Server starts and listens for connections</li>
+            <li>Client connects and sends HELLO message</li>
+            <li>Server acknowledges HELLO with ACK</li>
+            <li>Client sends MSG messages</li>
+            <li>Server acknowledges each MSG with ACK</li>
+            <li>If ACK not received, client retransmits after timeout</li>
+            <li>Client sends BYE message to disconnect</li>
+            <li>Server acknowledges BYE and closes connection</li>
+          </ol>
+          
+          <h2>Interpreting Results</h2>
+          <p>The protocol simulator on this website demonstrates:</p>
+          <ul>
+            <li><strong>Message Flow:</strong> Shows how messages travel between client and server</li>
+            <li><strong>ACK Mechanism:</strong> Displays acknowledgment messages confirming receipt</li>
+            <li><strong>Timeout Handling:</strong> Illustrates what happens when acknowledgments are delayed or lost</li>
+            <li><strong>Retransmissions:</strong> Shows how the protocol recovers from packet loss</li>
+          </ul>
+          
+          <h2>Graph Interpretation</h2>
+          <p>The protocol visualization shows:</p>
+          <ul>
+            <li>Message direction (client to server or vice versa)</li>
+            <li>Message types (HELLO, MSG, ACK, BYE)</li>
+            <li>Message IDs for tracking and correlation</li>
+            <li>Successful deliveries and retransmissions</li>
+          </ul>
+        </div>
+      </body>
+      </html>
+    `);
+    helpWindow.document.close();
   });
   
   downloadBtn.addEventListener('click', () => {
-    downloadModal.style.display = 'block';
-  });
-  
-  // Close modals
-  closeDevelopedBy.addEventListener('click', () => {
-    developedByModal.style.display = 'none';
-  });
-  
-  closeLearn.addEventListener('click', () => {
-    learnModal.style.display = 'none';
-  });
-  
-  closeHelp.addEventListener('click', () => {
-    helpModal.style.display = 'none';
-  });
-  
-  closeDownload.addEventListener('click', () => {
-    downloadModal.style.display = 'none';
-  });
-  
-  // Close modal when clicking outside
-  window.addEventListener('click', (event) => {
-    if (event.target === developedByModal) {
-      developedByModal.style.display = 'none';
-    }
-    if (event.target === learnModal) {
-      learnModal.style.display = 'none';
-    }
-    if (event.target === helpModal) {
-      helpModal.style.display = 'none';
-    }
-    if (event.target === downloadModal) {
-      downloadModal.style.display = 'none';
-    }
+    const downloadWindow = window.open('', 'DownloadSCP', 'width=700,height=600,scrollbars=yes,resizable=yes');
+    downloadWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Download Project Files</title>
+        <style>
+          body {
+            background: linear-gradient(180deg, #071018 0%, #07121a 100%);
+            color: #9aa7b2;
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            margin: 0;
+          }
+          .container {
+            max-width: 800px;
+            margin: 0 auto;
+          }
+          h1 {
+            color: #5eead4;
+            text-align: center;
+            margin-bottom: 30px;
+          }
+          h2 {
+            color: #7df59f;
+            margin: 25px 0 15px;
+          }
+          .download-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #5eead4, #39d6b2);
+            color: #04221c;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            margin: 5px 10px 5px 0;
+            transition: transform 0.2s;
+          }
+          .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(94,234,212,0.3);
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>Download Project Files</h1>
+          
+          <h2>Source Code</h2>
+          <p>Download the complete source code for the Simple Chat Protocol:</p>
+          <a href="#" class="download-btn" onclick="window.opener.downloadFile('scp_server.c', window.opener.getServerCode()); return false;">Download scp_server.c</a>
+          <a href="#" class="download-btn" onclick="window.opener.downloadFile('scp_client.c', window.opener.getClientCode()); return false;">Download scp_client.c</a>
+          <a href="#" class="download-btn" onclick="window.opener.downloadFile('Makefile', window.opener.getMakefile()); return false;">Download Makefile</a>
+          
+          <h2>Project Documentation</h2>
+          <p>Download comprehensive documentation about the SCP protocol:</p>
+          <a href="#" class="download-btn" onclick="window.opener.downloadFile('SCP_Protocol_Specification.pdf', window.opener.getProtocolSpec()); return false;">Download Protocol Specification</a>
+          <a href="#" class="download-btn" onclick="window.opener.downloadFile('SCP_Implementation_Guide.pdf', window.opener.getImplementationGuide()); return false;">Download Implementation Guide</a>
+          
+          <h2>Example Inputs and Outputs</h2>
+          <p>Download sample inputs and outputs to understand the protocol behavior:</p>
+          <a href="#" class="download-btn" onclick="window.opener.downloadFile('example_session.txt', window.opener.getExampleSession()); return false;">Download Example Session</a>
+          <a href="#" class="download-btn" onclick="window.opener.downloadFile('hamming_code_example.txt', window.opener.getHammingExample()); return false;">Download Hamming Code Example</a>
+        </div>
+      </body>
+      </html>
+    `);
+    downloadWindow.document.close();
   });
 
   // Tab Navigation (your existing code)
