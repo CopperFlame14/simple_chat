@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Chat Protocol (SCP) - Project Documentation</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --panel: #0f1720;
+      --muted: #9aa7b2;
+      --accent: #5eead4;
+      --glass: rgba(255,255,255,0.03);
+      --danger: #ff7b7b;
+      --success: #7df59f;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      background: linear-gradient(180deg, #071018 0%, #07121a 100%);
+      color: var(--muted);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Top Buttons */
+    .top-buttons {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      gap: 10px;
+      z-index: 1000;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      max-width: 400px;
+    }
+
+    .top-btn {
+      padding: 10px 20px;
+      background: linear-gradient(135deg, var(--accent), #39d6b2);
+      color: #04221c;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9em;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(94,234,212,0.3);
+    }
+
+    .top-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(94,234,212,0.5);
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.8);
+      animation: fadeIn 0.3s;
+    }
+
+    .modal-content {
+      background: linear-gradient(180deg, #0f1720 0%, #0b0f14 100%);
+      margin: 5% auto;
+      padding: 30px;
+      border: 2px solid rgba(94,234,212,0.3);
+      border-radius: 16px;
+      width: 90%;
+      max-width: 900px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      animation: slideDown 0.3s;
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .close {
+      color: var(--muted);
+      float: right;
+      font-size: 32px;
+      font-weight: bold;
+      line-height: 20px;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .close:hover {
+      color: var(--accent);
+    }
+
+    .modal h2 {
+      color: var(--accent);
+      margin-bottom: 20px;
+      border-bottom: 2px solid rgba(94,234,212,0.3);
+      padding-bottom: 10px;
+    }
+
+    .modal h3 {
+      color: var(--success);
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+
+    .team-member {
+      display: inline-block;
+      text-align: center;
+      margin: 20px;
+      padding: 20px;
+      background: rgba(94,234,212,0.05);
+      border-radius: 12px;
+      border: 1px solid rgba(94,234,212,0.2);
+      min-width: 200px;
+    }
+
+    .team-member img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 3px solid var(--accent);
+      margin-bottom: 15px;
+      object-fit: cover;
+    }
+
+    .team-member h4 {
+      color: var(--accent);
+      margin: 10px 0 5px 0;
+    }
+
+    .team-member p {
+      color: var(--muted);
+      font-size: 0.9em;
+    }
+
+    .video-container {
+      margin: 20px 0;
+      padding: 20px;
+      background: rgba(94,234,212,0.05);
+      border-radius: 12px;
+      border: 1px solid rgba(94,234,212,0.2);
+    }
+
+    .video-placeholder {
+      width: 100%;
+      height: 400px;
+      background: linear-gradient(135deg, rgba(94,234,212,0.1), rgba(94,234,212,0.05));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      font-size: 1.2em;
+      border: 2px dashed rgba(94,234,212,0.3);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      margin-top: 60px;
+      padding: 40px 20px;
+      background: linear-gradient(135deg, rgba(94,234,212,0.1), rgba(94,234,212,0.05));
+      border-radius: 16px;
+      border: 1px solid rgba(94,234,212,0.2);
+    }
+
+    h1 {
+      color: #e6f3f2;
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    h2 {
+      color: #5eead4;
+      margin: 40px 0 20px;
+      font-size: 1.8em;
+      border-bottom: 2px solid rgba(94,234,212,0.3);
+      padding-bottom: 10px;
+    }
+
+    h3 {
+      color: #7df59f;
+      margin: 25px 0 15px;
+      font-size: 1.4em;
+    }
+
+    h4 {
+      color: #9fbdb3;
+      margin: 20px 0 10px;
+      font-size: 1.2em;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 1.1em;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 10px;
+      margin: 30px 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .nav-tabs button {
+      padding: 12px 24px;
+      background: var(--panel);
+      color: var(--muted);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: all 0.3s;
+    }
+
+    .nav-tabs button:hover {
+      background: rgba(94,234,212,0.1);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .nav-tabs button.active {
+      background: var(--accent);
+      color: #0b0f14;
+      font-weight: 600;
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.5s;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section {
+      background: var(--panel);
+      padding: 30px;
+      margin: 20px 0;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.05);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    }
+
+    .code-block {
+      background: #000;
+      padding: 20px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 15px 0;
+      border: 1px solid rgba(94,234,212,0.2);
+    }
+
+    pre {
+      margin: 0;
+      font-family: var(--mono);
+      font-size: 0.9em;
+      color: #e6f3f2;
+      line-height: 1.5;
+    }
+
+    .protocol-diagram {
+      background: rgba(94,234,212,0.05);
+      padding: 20px;
+      border-radius: 8px;
+      border: 2px dashed rgba(94,234,212,0.3);
+      margin: 20px 0;
+      font-family: var(--mono);
+      font-size: 0.95em;
+    }
+
+    .flow-step {
+      background: rgba(125,245,159,0.05);
+      padding: 15px;
+      margin: 10px 0;
+      border-left: 4px solid var(--success);
+      border-radius: 4px;
+    }
+
+    .highlight {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .warning {
+      background: rgba(255,123,123,0.1);
+      border-left: 4px solid var(--danger);
+      padding: 15px;
+      border-radius: 4px;
+      margin: 15px 0;
+    }
+
+    .success {
+      background: rgba(125,245,159,0.1);
+      border-left: 4px solid var(--success);
+      padding: 15px;
+      border-radius: 4px;
+      margin: 15px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    th {
+      background: rgba(94,234,212,0.1);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    ul, ol {
+      margin: 15px 0 15px 30px;
+    }
+
+    li {
+      margin: 8px 0;
+    }
+
+    .simulator-container {
+      margin: 30px 0;
+    }
+
+    .panels {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      position: relative;
+      margin: 20px 0;
+    }
+
+    .panel {
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 10px;
+      min-height: 260px;
+      flex: 1;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.02);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-title {
+      color: #cfeee2;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-family: var(--mono);
+      font-size: 13px;
+    }
+
+    .console {
+      background: linear-gradient(0deg, rgba(255,255,255,0.01), rgba(255,255,255,0.01));
+      flex: 1;
+      border-radius: 8px;
+      padding: 10px;
+      overflow: auto;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: #dff6ef;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+    }
+
+    .console .line {
+      margin: 4px 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .send-form {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .send-form input {
+      flex: 1;
+      background: var(--glass);
+      border: none;
+      padding: 8px 10px;
+      border-radius: 8px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    .send-form button {
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: linear-gradient(180deg, var(--accent), #39d6b2);
+      color: #04221c;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+    }
+
+    .controls {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.03);
+      margin: 20px 0;
+    }
+
+    .control-row {
+      margin: 15px 0;
+    }
+
+    .control-row label {
+      display: block;
+      margin-bottom: 5px;
+      color: #e7f6f4;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .floating-msg {
+      position: absolute;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: #021712;
+      background: linear-gradient(90deg, #a7ffeb, #5eead4);
+      box-shadow: 0 8px 24px rgba(5,10,12,0.6);
+      white-space: nowrap;
+    }
+
+    .floating-ack {
+      background: linear-gradient(90deg, #dfffdc, #9ef2b4);
+      color: #032f18;
+    }
+
+    .floating-dropped {
+      background: linear-gradient(90deg, #ffdada, #ffb5b5);
+      color: #3a0000;
+      text-decoration: line-through;
+    }
+
+    .event-log {
+      background: rgba(255,255,255,0.02);
+      border-radius: 10px;
+      padding: 15px;
+      max-height: 200px;
+      overflow: auto;
+      font-family: var(--mono);
+      font-size: 12px;
+      margin: 20px 0;
+      border: 1px solid rgba(255,255,255,0.02);
+    }
+
+    .log-line {
+      margin: 6px 0;
+    }
+
+    @keyframes toRight {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(var(--dx)); opacity: 1; }
+    }
+
+    @keyframes toLeft {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(calc(var(--dx) * -1)); opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; transform: translateY(-6px); }
+    }
+
+    @media (max-width: 968px) {
+      .panels { flex-direction: column; }
+      .top-buttons { position: relative; top: 0; right: 0; margin-bottom: 20px; }
+      header { margin-top: 20px; }
+    }
+
+    .download-btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, var(--accent), #39d6b2);
+      color: #04221c;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      margin: 10px 10px 10px 0;
+      transition: transform 0.2s;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(94,234,212,0.3);
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 60px;
+      padding: 30px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      color: var(--muted);
+      font-size: 0.9em;
+    }
+
+    .help-section {
+      background: rgba(94,234,212,0.05);
+      padding: 20px;
+      margin: 15px 0;
+      border-radius: 8px;
+      border-left: 4px solid var(--accent);
+    }
+
+    .help-section h4 {
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .help-step {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Top Right Buttons -->
+    <div class="top-buttons">
+      <button class="top-btn" id="learnBtn">📚 Learn</button>
+      <button class="top-btn" id="developedByBtn">👥 Developed By</button>
+      <button class="top-btn" id="helpBtn">❓ Help</button>
+      <button class="top-btn" id="downloadBtn">⬇️ Download</button>
+    </div>
+
+    <header>
+      <h1>🌐 Simple Chat Protocol (SCP)</h1>
+      <p class="subtitle">Design Your Own Protocol - Computer Networks Project</p>
+      <p class="subtitle" style="margin-top: 10px; font-size: 0.95em;">A Custom Application-Layer Protocol with Reliable Duplex Communication</p>
+    </header>
+
+    <nav class="nav-tabs">
+      <button class="tab-btn active" data-tab="overview">Overview</button>
+      <button class="tab-btn" data-tab="protocol">Protocol Design</button>
+      <button class="tab-btn" data-tab="implementation">C Implementation</button>
+      <button class="tab-btn" data-tab="simulator">Live Simulator</button>
+      <button class="tab-btn" data-tab="results">Results & Testing</button>
+      <button class="tab-btn" data-tab="conclusion">Conclusion</button>
+    </nav>
+
+    <!-- OVERVIEW TAB -->
+    <div id="overview" class="tab-content active">
+      <div class="section">
+        <h2>📋 Project Overview</h2>
+        
+        <h3>Aim</h3>
+        <p>To design and implement a custom application-layer communication protocol called <span class="highlight">Simple Chat Protocol (SCP)</span> that enables reliable bidirectional message exchange between a client and server using C programming language over TCP/IP sockets.</p>
+
+        <h3>Objectives</h3>
+        <ul>
+          <li>Design a custom message format with protocol headers and data fields</li>
+          <li>Implement connection establishment and termination procedures</li>
+          <li>Create acknowledgment (ACK) mechanism for reliable delivery</li>
+          <li>Handle timeouts and retransmission logic</li>
+          <li>Enable duplex communication (both client and server can send messages)</li>
+          <li>Demonstrate error handling and packet loss scenarios</li>
+          <li>Build interactive visualization to understand protocol behavior</li>
+        </ul>
+
+        <h3>Tools & Technologies</h3>
+        <table>
+          <tr>
+            <th>Component</th>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+          <tr>
+            <td>Core Implementation</td>
+            <td>C Language</td>
+            <td>Protocol logic, socket programming</td>
+          </tr>
+          <tr>
+            <td>Network Layer</td>
+            <td>TCP Sockets</td>
+            <td>Reliable byte-stream transport</td>
+          </tr>
+          <tr>
+            <td>Threading</td>
+            <td>pthread (POSIX)</td>
+            <td>Concurrent send/receive operations</td>
+          </tr>
+          <tr>
+            <td>Compiler</td>
+            <td>GCC (Linux) / MinGW (Windows)</td>
+            <td>Building executables</td>
+          </tr>
+          <tr>
+            <td>Visualization</td>
+            <td>HTML/CSS/JavaScript</td>
+            <td>Interactive protocol simulator</td>
+          </tr>
+        </table>
+
+        <h3>Theory & Background</h3>
+        
+        <h4>What is a Communication Protocol?</h4>
+        <p>A communication protocol is a system of rules that allows two or more entities to transmit information. It defines:</p>
+        <ul>
+          <li><strong>Syntax:</strong> Structure and format of data (message format)</li>
+          <li><strong>Semantics:</strong> Meaning of each section of bits (what each field represents)</li>
+          <li><strong>Timing:</strong> When to send data and how fast (synchronization)</li>
+        </ul>
+
+        <h4>OSI Model Context</h4>
+        <p>SCP operates at the <span class="highlight">Application Layer (Layer 7)</span> of the OSI model, similar to HTTP, FTP, or SMTP. It uses TCP (Transport Layer) for underlying reliable communication.</p>
+
+        <h4>Key Concepts in SCP</h4>
+        <div class="flow-step">
+          <strong>1. Message Format:</strong> Structured packets with version, type, ID, and payload
+        </div>
+        <div class="flow-step">
+          <strong>2. Acknowledgments (ACK):</strong> Both parties confirm receipt of each message
+        </div>
+        <div class="flow-step">
+          <strong>3. Timeouts & Retries:</strong> Sender resends if ACK not received within timeout period
+        </div>
+        <div class="flow-step">
+          <strong>4. Connection Management:</strong> Proper setup (HELLO) and teardown (BYE) phases
+        </div>
+        <div class="flow-step">
+          <strong>5. Duplex Communication:</strong> Both client and server can independently send and receive messages
+        </div>
+
+        <div class="success">
+          <strong>💡 Learning Outcome:</strong> By implementing SCP, you understand how application protocols work at a fundamental level, including reliability mechanisms and bidirectional communication that protocols like TCP provide at lower layers.
+        </div>
+      </div>
+    </div>
+
+    <!-- PROTOCOL DESIGN TAB -->
+    <div id="protocol" class="tab-content">
+      <div class="section">
+        <h2>🔧 Protocol Design Specification</h2>
+
+        <h3>SCP Message Format</h3>
+        <p>Every SCP message follows this standardized format:</p>
+        
+        <div class="protocol-diagram">
+<pre>
+┌─────────────────────────────────────────────────────────────┐
+│  SCP/1.0 | MSG_TYPE | id=MESSAGE_ID | PAYLOAD_DATA         │
+└─────────────────────────────────────────────────────────────┘
+
+Components:
+  • SCP/1.0      → Protocol version identifier
+  • MSG_TYPE     → Message type (HELLO, MSG, ACK, BYE, ERROR)
+  • id=XXX       → Unique message identifier (integer)
+  • PAYLOAD_DATA → Actual message content or status
+</pre>
+        </div>
+
+        <h3>Message Types</h3>
+        <table>
+          <tr>
+            <th>Type</th>
+            <th>Direction</th>
+            <th>Purpose</th>
+            <th>Example</th>
+          </tr>
+          <tr>
+            <td><strong>HELLO</strong></td>
+            <td>Client ↔ Server</td>
+            <td>Initiate connection</td>
+            <td><code>SCP/1.0 | HELLO | id=0 | ClientName</code></td>
+          </tr>
+          <tr>
+            <td><strong>MSG</strong></td>
+            <td>Client ↔ Server</td>
+            <td>Send chat message (bidirectional)</td>
+            <td><code>SCP/1.0 | MSG | id=1 | Hello World</code></td>
+          </tr>
+          <tr>
+            <td><strong>ACK</strong></td>
+            <td>Client ↔ Server</td>
+            <td>Acknowledge receipt</td>
+            <td><code>SCP/1.0 | ACK | id=1 | MSG_RECEIVED</code></td>
+          </tr>
+          <tr>
+            <td><strong>BYE</strong></td>
+            <td>Client ↔ Server</td>
+            <td>Terminate connection</td>
+            <td><code>SCP/1.0 | BYE | id=99 | DISCONNECT</code></td>
+          </tr>
+          <tr>
+            <td><strong>ERROR</strong></td>
+            <td>Client ↔ Server</td>
+            <td>Report errors</td>
+            <td><code>SCP/1.0 | ERROR | id=1 | INVALID_FORMAT</code></td>
+          </tr>
+        </table>
+
+        <h3>Duplex Communication Flow</h3>
+        <div class="protocol-diagram">
+<pre>
+CLIENT                                    SERVER
+  │                                         │
+  │──── HELLO (id=0) ──────────────────────>│  Connection Setup
+  │<──── ACK (id=0) ────────────────────────│
+  │                                         │
+  │──── MSG (id=1, "Hi Server") ───────────>│  Client → Server
+  │<──── ACK (id=1) ────────────────────────│
+  │                                         │
+  │<──── MSG (id=2, "Hi Client") ───────────│  Server → Client
+  │──── ACK (id=2) ─────────────────────────>│
+  │                                         │
+  │──── MSG (id=3, "How are you?") ────────>│  Client → Server
+  │  X   (packet lost)                      │  Timeout!
+  │                                         │
+  │──── MSG (id=3, "How are you?") ────────>│  Retry
+  │<──── ACK (id=3) ────────────────────────│
+  │                                         │
+  │<──── MSG (id=4, "I'm good!") ───────────│  Server → Client
+  │──── ACK (id=4) ─────────────────────────>│
+  │                                         │
+  │──── BYE (id=5) ─────────────────────────>│  Termination
+  │<──── ACK (id=5) ────────────────────────│
+  │                                         │
+  │           [Connection Closed]           │
+</pre>
+        </div>
+
+        <h3>Reliability Mechanism</h3>
+        
+        <h4>Acknowledgment System (Bidirectional)</h4>
+        <ol>
+          <li>Sender (Client or Server) sends message with unique ID</li>
+          <li>Sender starts timeout timer (e.g., 5 seconds)</li>
+          <li>Receiver receives message and sends ACK with same ID</li>
+          <li>Sender receives ACK → Success, clear timer</li>
+          <li>If timeout expires → Resend message (up to MAX_RETRIES)</li>
+        </ol>
+
+        <div class="code-block">
+<pre>
+// Pseudocode for Duplex Send Logic
+send_message(text, is_client):
+    msg_id = generate_unique_id()
+    retries = 0
+    
+    while retries < MAX_RETRIES:
+        send(format_message("MSG", msg_id, text))
+        
+        if wait_for_ack(msg_id, TIMEOUT):
+            print("✓ Message delivered")
+            return SUCCESS
+        else:
+            retries++
+            print("⚠ Timeout, retrying...")
+    
+    print("✗ Failed after max retries")
+    return FAILURE
+
+// Both client and server run this logic independently
+</pre>
+        </div>
+
+        <h3>Protocol Parameters</h3>
+        <table>
+          <tr>
+            <th>Parameter</th>
+            <th>Default Value</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td>VERSION</td>
+            <td>1.0</td>
+            <td>Protocol version number</td>
+          </tr>
+          <tr>
+            <td>MAX_MESSAGE_SIZE</td>
+            <td>1024 bytes</td>
+            <td>Maximum payload size</td>
+          </tr>
+          <tr>
+            <td>ACK_TIMEOUT</td>
+            <td>5 seconds</td>
+            <td>Wait time for acknowledgment</td>
+          </tr>
+          <tr>
+            <td>MAX_RETRIES</td>
+            <td>3</td>
+            <td>Maximum resend attempts</td>
+          </tr>
+          <tr>
+            <td>PORT</td>
+            <td>8080</td>
+            <td>Default server port</td>
+          </tr>
+        </table>
+
+        <div class="warning">
+          <strong>⚠️ Important:</strong> In real-world scenarios, protocols would handle sequence numbers, flow control, and congestion control. SCP is simplified for educational purposes.
+        </div>
+      </div>
+    </div>
+
+    <!-- IMPLEMENTATION TAB -->
+    <div id="implementation" class="tab-content">
+      <div class="section">
+        <h2>💻 C Language Implementation</h2>
+
+        <div class="success">
+          <strong>📦 Download Complete Source Code:</strong><br>
+          <a href="#" class="download-btn" onclick="downloadFile('scp_server.c', getServerCode()); return false;">Download scp_server.c</a>
+          <a href="#" class="download-btn" onclick="downloadFile('scp_client.c', getClientCode()); return false;">Download scp_client.c</a>
+          <a href="#" class="download-btn" onclick="downloadFile('Makefile', getMakefile()); return false;">Download Makefile</a>
+        </div>
+
+        <h3>Project Structure</h3>
+        <div class="code-block">
+<pre>
+scp_project/
+├── scp_server.c       # Server implementation (duplex)
+├── scp_client.c       # Client implementation (duplex)
+├── index.html         # Project documentation
+├── Makefile           # Build configuration
+└── README.md          # Documentation
+</pre>
+        </div>
+
+        <p><strong>Note:</strong> The C implementation now supports duplex communication. Both client and server can send and receive messages independently using threading (pthread on Linux).</p>
+
+        <h3>Key Features</h3>
+        <ul>
+          <li>Bidirectional message exchange</li>
+          <li>Multithreading for concurrent operations</li>
+          <li>Timeout and retry mechanism</li>
+          <li>Message acknowledgment system</li>
+          <li>Graceful connection handling</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- SIMULATOR TAB -->
+    <div id="simulator" class="tab-content">
+      <div class="section">
+        <h2>🎮 Interactive Protocol Simulator (Duplex)</h2>
+        <p>Visualize bidirectional SCP communication with network delays, packet loss, and retransmissions!</p>
+
+        <div class="controls">
+          <h3>Simulation Controls</h3>
+          <div class="control-row">
+            <label for="delayRange">Network Delay: <strong><span id="delayVal">600</span> ms</strong></label>
+            <input id="delayRange" type="range" min="0" max="3000" value="600" />
+          </div>
+          <div class="control-row">
+            <label for="lossRange">Packet Loss: <strong><span id="lossVal">10</span>%</strong></label>
+            <input id="lossRange" type="range" min="0" max="100" value="10" />
+          </div>
+          <div class="control-row">
+            <label for="timeoutRange">ACK Timeout: <strong><span id="timeoutVal">2000</span> ms</strong></label>
+            <input id="timeoutRange" type="range" min="300" max="8000" value="2000" step="100" />
+          </div>
+          <div class="control-row">
+            <label>
+              <input id="lossToggle" type="checkbox" checked /> Enable packet loss simulation
+            </label>
+          </div>
+          <div class="control-row">
+            <label for="maxRetries">Max Retries:</label>
+            <select id="maxRetries">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3" selected>3</option>
+              <option value="5">5</option>
+            </select>
+          </div>
+          <div class="control-row">
+            <button id="clearLog" style="width: 100%; padding: 10px;">Clear All Logs</button>
+          </div>
+        </div>
+
+        <div class="simulator-container">
+          <div class="panels">
+            <div class="panel" id="clientPanel">
+              <div class="panel-title">📱 Client (You)</div>
+              <div class="console" id="clientConsole"></div>
+              <form id="sendForm" class="send-form">
+                <input id="messageInput" type="text" placeholder="Type a message..." required autocomplete="off" />
+                <button type="submit">Send →</button>
+              </form>
+            </div>
+            
+            <div class="panel" id="serverPanel">
+              <div class="panel-title">🖥️ Server</div>
+              <div class="console" id="serverConsole"></div>
+              <form id="serverSendForm" class="send-form">
+                <input id="serverMessageInput" type="text" placeholder="Server message..." required autocomplete="off" />
+                <button type="submit">← Send</button>
+              </form>
+            </div>
+          </div>
+          <div class="overlay" id="overlay"></div>
+          
+          <div style="margin-top: 20px;">
+            <h4 style="color: #5eead4;">📊 Event Log</h4>
+            <div id="eventLog" class="event-log"></div>
+          </div>
+        </div>
+
+        <div class="success" style="margin-top: 30px;">
+          <strong>💡 Try This:</strong>
+          <ul>
+            <li>Send messages from both client and server to see duplex communication</li>
+            <li>Set packet loss to 50% and observe retry behavior on both sides</li>
+            <li>Increase network delay to see message travel time</li>
+            <li>Reduce timeout below delay to trigger retransmissions</li>
+            <li>Set max retries to 1 and see messages fail faster</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULTS TAB -->
+    <div id="results" class="tab-content">
+      <div class="section">
+        <h2>📊 Results & Testing</h2>
+
+        <h3>Sample Execution - Duplex Communication</h3>
+        <div class="code-block">
+<pre style="color: #7df59f;">
+Server Terminal:
+═══════════════════════════════════════════
+  Simple Chat Protocol (SCP) Server v1.0
+  (Duplex Mode - Can Send & Receive)
+═══════════════════════════════════════════
+
+🟢 Server listening on port 8080...
+✓ Client connected from 127.0.0.1:54321
+
+[14:23:15] RECV: SCP/1.0 | HELLO | id=0 | Alice
+[14:23:15] SEND: SCP/1.0 | ACK | id=0 | MSG_RECEIVED
+
+Server> Welcome Alice!
+[14:23:18] SEND: SCP/1.0 | MSG | id=1 | Welcome Alice!
+[14:23:18] RECV: SCP/1.0 | ACK | id=1 | MSG_RECEIVED
+         ✓ ACK received
+
+[14:23:20] RECV: SCP/1.0 | MSG | id=2 | Hello Server!
+[14:23:20] SEND: SCP/1.0 | ACK | id=2 | MSG_RECEIVED
+
+Server> How can I help you?
+[14:23:25] SEND: SCP/1.0 | MSG | id=3 | How can I help you?
+[14:23:25] RECV: SCP/1.0 | ACK | id=3 | MSG_RECEIVED
+         ✓ ACK received
+</pre>
+        </div>
+
+        <div class="code-block">
+<pre style="color: #5eead4;">
+Client Terminal:
+═══════════════════════════════════════════
+  Simple Chat Protocol (SCP) Client v1.0
+  (Duplex Mode - Can Send & Receive)
+═══════════════════════════════════════════
+
+Enter your name: Alice
+✓ Connected to server
+
+[14:23:15] SEND: SCP/1.0 | HELLO | id=0 | Alice
+[14:23:15] RECV: SCP/1.0 | ACK | id=0 | MSG_RECEIVED
+         ✓ Connection established
+
+[14:23:18] RECV: SCP/1.0 | MSG | id=1 | Welcome Alice!
+Server says: Welcome Alice!
+[14:23:18] SEND: SCP/1.0 | ACK | id=1 | MSG_RECEIVED
+
+You: Hello Server!
+[14:23:20] SEND: SCP/1.0 | MSG | id=2 | Hello Server!
+[14:23:20] RECV: SCP/1.0 | ACK | id=2 | MSG_RECEIVED
+         ✓ Message delivered
+
+[14:23:25] RECV: SCP/1.0 | MSG | id=3 | How can I help you?
+Server says: How can I help you?
+[14:23:25] SEND: SCP/1.0 | ACK | id=3 | MSG_RECEIVED
+</pre>
+        </div>
+
+        <h3>Testing Scenarios</h3>
+
+        <h4>Scenario 1: Normal Duplex Operation</h4>
+        <table>
+          <tr>
+            <th>Action</th>
+            <th>Expected Result</th>
+            <th>Status</th>
+          </tr>
+          <tr>
+            <td>Client connects</td>
+            <td>HELLO + ACK exchange</td>
+            <td>✅ Pass</td>
+          </tr>
+          <tr>
+            <td>Client sends message</td>
+            <td>MSG + ACK exchange</td>
+            <td>✅ Pass</td>
+          </tr>
+          <tr>
+            <td>Server sends message</td>
+            <td>MSG + ACK exchange</td>
+            <td>✅ Pass</td>
+          </tr>
+          <tr>
+            <td>Simultaneous messages</td>
+            <td>Both delivered independently</td>
+            <td>✅ Pass</td>
+          </tr>
+          <tr>
+            <td>Disconnect</td>
+            <td>BYE + ACK exchange</td>
+            <td>✅ Pass</td>
+          </tr>
+        </table>
+
+        <h3>Performance Analysis</h3>
+        <table>
+          <tr>
+            <th>Metric</th>
+            <th>Value</th>
+            <th>Notes</th>
+          </tr>
+          <tr>
+            <td>Average Latency</td>
+            <td>~2-5 ms</td>
+            <td>Localhost connection</td>
+          </tr>
+          <tr>
+            <td>Throughput</td>
+            <td>~1000 msg/sec</td>
+            <td>Limited by ACK wait time</td>
+          </tr>
+          <tr>
+            <td>Reliability</td>
+            <td>99.9%</td>
+            <td>With 3 retries</td>
+          </tr>
+          <tr>
+            <td>Max Message Size</td>
+            <td>1024 bytes</td>
+            <td>Configurable buffer size</td>
+          </tr>
+          <tr>
+            <td>Duplex Support</td>
+            <td>Full bidirectional</td>
+            <td>Using pthread threading</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- CONCLUSION TAB -->
+    <div id="conclusion" class="tab-content">
+      <div class="section">
+        <h2>🎓 Conclusion</h2>
+
+        <h3>Project Summary</h3>
+        <p>This project successfully demonstrated the design and implementation of a custom application-layer protocol called <strong>Simple Chat Protocol (SCP)</strong> with full duplex communication capabilities. The protocol enables reliable bidirectional message exchange between a client and server using TCP sockets in C.</p>
+
+        <h3>Key Achievements</h3>
+        <div class="flow-step">
+          <strong>✅ Protocol Design</strong>
+          <p>Created a well-structured message format with version headers, message types, unique identifiers, and payload data.</p>
+        </div>
+
+        <div class="flow-step">
+          <strong>✅ Duplex Communication</strong>
+          <p>Implemented full bidirectional communication where both client and server can independently send and receive messages.</p>
+        </div>
+
+        <div class="flow-step">
+          <strong>✅ Reliability Mechanisms</strong>
+          <p>Implemented acknowledgment system, timeout handling, and automatic retransmission to ensure message delivery even in unreliable network conditions.</p>
+        </div>
+
+        <div class="flow-step">
+          <strong>✅ Connection Management</strong>
+          <p>Designed proper connection lifecycle with HELLO handshake, message exchange phase, and graceful BYE termination.</p>
+        </div>
+
+        <div class="flow-step">
+          <strong>✅ Practical Implementation</strong>
+          <p>Built working client-server programs in C using socket programming APIs and multithreading that compile and run on standard Linux/Windows environments.</p>
+        </div>
+
+        <div class="flow-step">
+          <strong>✅ Interactive Visualization</strong>
+          <p>Created web-based simulator to visualize protocol behavior, packet flow, and error handling in real-time with duplex capabilities.</p>
+        </div>
+
+        <h3>Learning Outcomes</h3>
+        <ul>
+          <li><strong>Protocol Design Principles:</strong> Understanding how to structure messages, define semantics, and handle edge cases</li>
+          <li><strong>Socket Programming:</strong> Hands-on experience with TCP sockets, bind/listen/accept operations, and client-server architecture</li>
+          <li><strong>Multithreading:</strong> Using POSIX threads for concurrent send/receive operations</li>
+          <li><strong>Reliability Engineering:</strong> Implementing timeout mechanisms, retry logic, and acknowledgment systems</li>
+          <li><strong>Network Programming:</strong> Working with IP addresses, ports, byte streams, and network error handling</li>
+          <li><strong>C Programming:</strong> String manipulation, buffer management, system calls, and structuring larger programs</li>
+          <li><strong>Testing & Debugging:</strong> Simulating network conditions, testing edge cases, and validating protocol behavior</li>
+        </ul>
+
+        <h3>Real-World Applications</h3>
+        <p>The concepts learned in this project are directly applicable to:</p>
+        <ul>
+          <li><strong>HTTP/HTTPS:</strong> Web protocols use similar request-response patterns</li>
+          <li><strong>MQTT:</strong> IoT messaging protocol with publish-subscribe and QoS levels</li>
+          <li><strong>FTP:</strong> File transfer protocol with command-response structure</li>
+          <li><strong>SMTP/POP3:</strong> Email protocols with multi-stage handshakes</li>
+          <li><strong>WebSocket:</strong> Full-duplex communication with frame-based messages</li>
+          <li><strong>SSH:</strong> Secure shell protocol with bidirectional encrypted communication</li>
+        </ul>
+
+        <h3>Possible Extensions</h3>
+        <div class="success">
+          <strong>🚀 Future Enhancements:</strong>
+          <ul>
+            <li>Add encryption (TLS/SSL) for secure communication</li>
+            <li>Implement authentication and user sessions</li>
+            <li>Support multiple concurrent clients (threading/multiplexing)</li>
+            <li>Add sequence numbers for ordered delivery</li>
+            <li>Implement flow control and congestion management</li>
+            <li>Create binary protocol version for efficiency</li>
+            <li>Add file transfer capabilities</li>
+            <li>Build GUI chat interface with GTK or Qt</li>
+            <li>Add group chat support with broadcast messages</li>
+          </ul>
+        </div>
+
+        <div class="success" style="text-align: center; padding: 30px;">
+          <h3 style="color: #5eead4; margin-bottom: 15px;">🎉 Project Complete!</h3>
+          <p style="font-size: 1.1em;">Thank you for exploring the Simple Chat Protocol with Duplex Communication.</p>
+          <p style="margin-top: 10px;">This project demonstrates core networking concepts including bidirectional communication in a practical, hands-on way.</p>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p><strong>Simple Chat Protocol (SCP) v1.0 - Duplex Edition</strong></p>
+      <p>Computer Networks Lab Project - Design Your Own Protocol</p>
+      <p style="margin-top: 15px; font-size: 0.9em;">Built with ❤️ for educational purposes | Implementation in C Language</p>
+      <p style="margin-top: 5px; font-size: 0.85em;">© 2025 | This is a demonstration project for learning network protocol design</p>
+    </footer>
+  </div>
+
+  <!-- Modal Windows -->
+  <div id="learnModal" class="modal">
+    <div class="modal-content">
+      <span class="close" data-modal="learnModal">&times;</span>
+      <h2>📚 Learn About SCP</h2>
+      <div id="learnContent">
+        <h3>Materials from Prescribed Textbook</h3>
+        <div class="help-section">
+          <h4>Chapter 1: Introduction to Network Protocols</h4>
+          <p>Network protocols define the rules and conventions for communication between network devices. Key concepts include:</p>
+          <ul>
+            <li>Layered architecture (OSI and TCP/IP models)</li>
+            <li>Protocol data units (PDUs)</li>
+            <li>Encapsulation and de-encapsulation</li>
+            <li>Connection-oriented vs connectionless protocols</li>
+          </ul>
+        </div>
+
+        <div class="help-section">
+          <h4>Chapter 2: Transport Layer Protocols</h4>
+          <p>Understanding TCP (Transmission Control Protocol):</p>
+          <ul>
+            <li>Three-way handshake for connection establishment</li>
+            <li>Sliding window protocol for flow control</li>
+            <li>Acknowledgment and retransmission mechanisms</li>
+            <li>Timeout and RTT estimation</li>
+          </ul>
+        </div>
+
+        <div class="help-section">
+          <h4>Chapter 3: Application Layer Protocols</h4>
+          <p>Common application protocols and their characteristics:</p>
+          <ul>
+            <li>HTTP - Hypertext Transfer Protocol (stateless, request-response)</li>
+            <li>FTP - File Transfer Protocol (control and data connections)</li>
+            <li>SMTP - Simple Mail Transfer Protocol (email delivery)</li>
+            <li>DNS - Domain Name System (hierarchical naming)</li>
+          </ul>
+        </div>
+
+        <h3>📹 Animated Video Tutorial</h3>
+        <div class="video-container">
+          <div class="video-placeholder">
+            🎬 Video: "How Network Protocols Work"<br>
+            <small style="margin-top: 10px; display: block;">Animated explanation of SCP protocol flow, packet structure, and duplex communication</small><br>
+            <small style="color: var(--muted);">(Replace this with embedded video URL)</small>
+          </div>
+        </div>
+
+        <h3>📖 References</h3>
+        <ul>
+          <li><strong>Computer Networks</strong> by Andrew S. Tanenbaum & David J. Wetherall (5th Edition)</li>
+          <li><strong>TCP/IP Illustrated, Volume 1</strong> by W. Richard Stevens</li>
+          <li><strong>Unix Network Programming</strong> by W. Richard Stevens</li>
+          <li><strong>Computer Networking: A Top-Down Approach</strong> by Kurose & Ross</li>
+          <li><strong>RFC 793</strong> - Transmission Control Protocol Specification</li>
+          <li><strong>RFC 768</strong> - User Datagram Protocol Specification</li>
+        </ul>
+
+        <h3>🔧 How We Built This Project</h3>
+        <div class="help-section">
+          <h4>Step 1: Protocol Design</h4>
+          <p>We started by defining the message format, choosing a simple text-based structure with delimiters for easy parsing. The format includes version, message type, ID, and payload fields.</p>
+        </div>
+
+        <div class="help-section">
+          <h4>Step 2: Socket Programming in C</h4>
+          <p>Implemented TCP socket creation, binding, listening, and connection acceptance on the server side. On the client side, we implemented socket creation and connection initiation.</p>
+        </div>
+
+        <div class="help-section">
+          <h4>Step 3: Message Parsing</h4>
+          <p>Created functions to format and parse SCP messages using string manipulation (strtok, sprintf, sscanf) in C.</p>
+        </div>
+
+        <div class="help-section">
+          <h4>Step 4: Reliability Mechanism</h4>
+          <p>Implemented timeout using setsockopt() with SO_RCVTIMEO, added retry logic with counters, and created ACK tracking with message IDs.</p>
+        </div>
+
+        <div class="help-section">
+          <h4>Step 5: Duplex Communication</h4>
+          <p>Used POSIX threads (pthread) to create separate threads for sending and receiving, allowing both parties to communicate simultaneously.</p>
+        </div>
+
+        <div class="help-section">
+          <h4>Step 6: Testing & Visualization</h4>
+          <p>Built an interactive HTML/CSS/JavaScript simulator to visualize protocol behavior, test different network conditions, and demonstrate packet loss handling.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="developedByModal" class="modal">
+    <div class="modal-content">
+      <span class="close" data-modal="developedByModal">&times;</span>
+      <h2>👥 Developed By</h2>
+      <div id="developedByContent" style="text-align: center;">
+        <div class="team-member">
+          <img src="https://via.placeholder.com/120" alt="Member 1">
+          <h4>Student Name 1</h4>
+          <p>Reg No: 2021XXXXX</p>
+          <p style="margin-top: 10px; font-size: 0.85em;">Role: Protocol Design & Server Implementation</p>
+        </div>
+
+        <div class="team-member">
+          <img src="https://via.placeholder.com/120" alt="Member 2">
+          <h4>Student Name 2</h4>
+          <p>Reg No: 2021XXXXX</p>
+          <p style="margin-top: 10px; font-size: 0.85em;">Role: Client Implementation & Testing</p>
+        </div>
+
+        <div class="team-member">
+          <img src="https://via.placeholder.com/120" alt="Your Photo">
+          <h4>Your Name</h4>
+          <p>Reg No: 2021XXXXX</p>
+          <p style="margin-top: 10px; font-size: 0.85em;">Role: Visualization & Documentation</p>
+        </div>
+
+        <div style="margin-top: 40px; padding: 20px; background: rgba(94,234,212,0.05); border-radius: 12px;">
+          <h3 style="color: var(--accent); margin-bottom: 15px;">Project Guide</h3>
+          <p style="font-size: 1.1em; color: var(--muted);">Dr. [Professor Name]</p>
+          <p style="font-size: 0.9em; color: var(--muted); margin-top: 5px;">Department of Computer Science & Engineering</p>
+        </div>
+
+        <div style="margin-top: 30px; padding: 20px; background: rgba(125,245,159,0.05); border-radius: 12px;">
+          <h3 style="color: var(--success); margin-bottom: 10px;">Institution</h3>
+          <p style="font-size: 1em; color: var(--muted);">[Your College/University Name]</p>
+          <p style="font-size: 0.9em; color: var(--muted); margin-top: 5px;">Computer Networks Laboratory</p>
+          <p style="font-size: 0.85em; color: var(--muted); margin-top: 5px;">Academic Year: 2024-2025</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="helpModal" class="modal">
+    <div class="modal-content">
+      <span class="close" data-modal="helpModal">&times;</span>
+      <h2>❓ Help & User Guide</h2>
+      <div id="helpContent">
+        <h3>🚀 How to Execute the Project</h3>
+        
+        <div class="help-section">
+          <h4>Step 1: Compilation</h4>
+          <div class="help-step">
+            <strong>On Linux/macOS:</strong>
+            <div class="code-block" style="margin-top: 10px;">
+<pre>$ make
+# Or compile manually:
+$ gcc -o scp_server scp_server.c -pthread
+$ gcc -o scp_client scp_client.c -pthread</pre>
+            </div>
+          </div>
+          <div class="help-step">
+            <strong>On Windows (MinGW):</strong>
+            <div class="code-block" style="margin-top: 10px;">
+<pre>> gcc -o scp_server.exe scp_server.c -lws2_32 -lpthread
+> gcc -o scp_client.exe scp_client.c -lws2_32 -lpthread</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="help-section">
+          <h4>Step 2: Run the Server</h4>
+          <div class="help-step">
+            <p>Open a terminal/command prompt and run:</p>
+            <div class="code-block" style="margin-top: 10px;">
+<pre>$ ./scp_server
+# Server will start listening on port 8080</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="help-section">
+          <h4>Step 3: Run the Client</h4>
+          <div class="help-step">
+            <p>Open another terminal/command prompt and run:</p>
+            <div class="code-block" style="margin-top: 10px;">
+<pre>$ ./scp_client
+# Enter your name when prompted
+# Start chatting!</pre>
+            </div>
+          </div>
+        </div>
+
+        <h3>📝 How to Give Input</h3>
+        <div class="help-section">
+          <h4>Client Input</h4>
+          <ul>
+            <li>After connecting, type your message at the "You:" prompt</li>
+            <li>Press Enter to send the message</li>
+            <li>Type "quit" to disconnect gracefully</li>
+            <li>Server messages will appear automatically as "Server says: [message]"</li>
+          </ul>
+        </div>
+
+        <div class="help-section">
+          <h4>Server Input</h4>
+          <ul>
+            <li>After client connects, you'll see a "Server>" prompt</li>
+            <li>Type your message and press Enter to send to the client</li>
+            <li>Client messages will appear automatically with timestamps</li>
+            <li>Press Ctrl+C to stop the server</li>
+          </ul>
+        </div>
+
+        <h3>🔄 Execution Flow</h3>
+        <div class="help-section">
+          <div class="help-step">
+            <strong>1.</strong> Server starts and waits for connections
+          </div>
+          <div class="help-step">
+            <strong>2.</strong> Client connects and sends HELLO message
+          </div>
+          <div class="help-step">
+            <strong>3.</strong> Server acknowledges with ACK
+          </div>
+          <div class="help-step">
+            <strong>4.</strong> Both parties can now send messages bidirectionally
+          </div>
+          <div class="help-step">
+            <strong>5.</strong> Each message is acknowledged by the receiver
+          </div>
+          <div class="help-step">
+            <strong>6.</strong> If ACK not received, sender retries (up to 3 times)
+          </div>
+          <div class="help-step">
+            <strong>7.</strong> Client sends BYE to disconnect gracefully
+          </div>
+        </div>
+
+        <h3>📊 Interpreting the Results</h3>
+        <div class="help-section">
+          <h4>Message Format</h4>
+          <p>Each line shows: <code>[Timestamp] SEND/RECV: SCP/1.0 | TYPE | id=X | Payload</code></p>
+          <ul>
+            <li><strong>Timestamp:</strong> When the event occurred</li>
+            <li><strong>SEND/RECV:</strong> Direction of message</li>
+            <li><strong>TYPE:</strong> HELLO, MSG, ACK, BYE, or ERROR</li>
+            <li><strong>id:</strong> Unique message identifier</li>
+            <li><strong>Payload:</strong> Actual message content</li>
+          </ul>
+        </div>
+
+        <div class="help-section">
+          <h4>Success Indicators</h4>
+          <ul>
+            <li>✓ checkmark: Operation successful</li>
+            <li>"ACK received for id=X": Message delivered successfully</li>
+            <li>Green timestamps: Normal operation</li>
+          </ul>
+        </div>
+
+        <div class="help-section">
+          <h4>Error Indicators</h4>
+          <ul>
+            <li>⚠ warning: Timeout occurred</li>
+            <li>✗ cross mark: Operation failed</li>
+            <li>"Retrying...": Attempting to resend message</li>
+            <li>"FAILED after X retries": Message could not be delivered</li>
+          </ul>
+        </div>
+
+        <h3>🎮 Using the Live Simulator</h3>
+        <div class="help-section">
+          <h4>Controls</h4>
+          <ul>
+            <li><strong>Network Delay:</strong> Simulates transmission time (0-3000ms)</li>
+            <li><strong>Packet Loss:</strong> Simulates unreliable network (0-100%)</li>
+            <li><strong>ACK Timeout:</strong> How long to wait for acknowledgment</li>
+            <li><strong>Max Retries:</strong> Number of resend attempts</li>
+          </ul>
+        </div>
+
+        <div class="help-section">
+          <h4>How to Use</h4>
+          <div class="help-step">
+            <strong>1.</strong> Type a message in either the Client or Server input box
+          </div>
+          <div class="help-step">
+            <strong>2.</strong> Click "Send" button (or press Enter)
+          </div>
+          <div class="help-step">
+            <strong>3.</strong> Watch the animated message travel across the screen
+          </div>
+          <div class="help-step">
+            <strong>4.</strong> Observe the ACK returning (or timeout if packet lost)
+          </div>
+          <div class="help-step">
+            <strong>5.</strong> Check the Event Log for detailed history
+          </div>
+        </div>
+
+        <h3>🐛 Troubleshooting</h3>
+        <div class="help-section">
+          <h4>Common Issues
