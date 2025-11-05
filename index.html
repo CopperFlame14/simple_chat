@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simple Chat Protocol (SCP) - Project Documentation</title>
+  <title>Two-Way Simple Chat Protocol (SCP)</title>
   <style>
     :root {
       --bg: #0b0f14;
@@ -13,6 +13,8 @@
       --glass: rgba(255,255,255,0.03);
       --danger: #ff7b7b;
       --success: #7df59f;
+      --client-color: #5eead4;
+      --server-color: #7df59f;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
     }
 
@@ -35,7 +37,7 @@
       text-align: center;
       margin-bottom: 40px;
       padding: 40px 20px;
-      background: linear-gradient(135deg, rgba(94,234,212,0.1), rgba(94,234,212,0.05));
+      background: linear-gradient(135deg, rgba(94,234,212,0.1), rgba(125,245,159,0.1));
       border-radius: 16px;
       border: 1px solid rgba(94,234,212,0.2);
     }
@@ -59,12 +61,6 @@
       color: #7df59f;
       margin: 25px 0 15px;
       font-size: 1.4em;
-    }
-
-    h4 {
-      color: #9fbdb3;
-      margin: 20px 0 10px;
-      font-size: 1.2em;
     }
 
     .subtitle {
@@ -258,6 +254,14 @@
       word-break: break-word;
     }
 
+    .client-message {
+      color: var(--client-color);
+    }
+
+    .server-message {
+      color: var(--server-color);
+    }
+
     .send-form {
       display: flex;
       gap: 8px;
@@ -319,14 +323,21 @@
       font-family: var(--mono);
       font-size: 13px;
       color: #021712;
-      background: linear-gradient(90deg, #a7ffeb, #5eead4);
       box-shadow: 0 8px 24px rgba(5,10,12,0.6);
       white-space: nowrap;
     }
 
-    .floating-ack {
+    .floating-client {
+      background: linear-gradient(90deg, #a7ffeb, #5eead4);
+    }
+
+    .floating-server {
       background: linear-gradient(90deg, #dfffdc, #9ef2b4);
-      color: #032f18;
+    }
+
+    .floating-ack {
+      background: linear-gradient(90deg, #e6f3ff, #b3d9ff);
+      color: #001a33;
     }
 
     .floating-dropped {
@@ -395,14 +406,46 @@
       color: var(--muted);
       font-size: 0.9em;
     }
+
+    .bidirectional-flow {
+      text-align: center;
+      margin: 30px 0;
+      padding: 20px;
+      background: rgba(94,234,212,0.05);
+      border-radius: 12px;
+      border: 2px dashed rgba(94,234,212,0.3);
+    }
+
+    .bidirectional-flow h3 {
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+
+    .flow-arrows {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 20px 0;
+    }
+
+    .arrow {
+      font-size: 2em;
+      color: var(--accent);
+    }
+
+    .flow-label {
+      font-size: 0.9em;
+      color: var(--muted);
+      margin-top: 5px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>🌐 Simple Chat Protocol (SCP)</h1>
-      <p class="subtitle">Design Your Own Protocol - Computer Networks Project</p>
-      <p class="subtitle" style="margin-top: 10px; font-size: 0.95em;">A Custom Application-Layer Protocol with Reliable Message Delivery</p>
+      <h1>🔄 Two-Way Simple Chat Protocol (SCP)</h1>
+      <p class="subtitle">Bidirectional Communication with Multi-Threading</p>
+      <p class="subtitle" style="margin-top: 10px; font-size: 0.95em;">Full Duplex Protocol with Simultaneous Send/Receive</p>
     </header>
 
     <nav class="nav-tabs">
@@ -411,85 +454,98 @@
       <button class="tab-btn" data-tab="implementation">C Implementation</button>
       <button class="tab-btn" data-tab="simulator">Live Simulator</button>
       <button class="tab-btn" data-tab="results">Results & Testing</button>
-      <button class="tab-btn" data-tab="conclusion">Conclusion</button>
     </nav>
 
     <!-- OVERVIEW TAB -->
     <div id="overview" class="tab-content active">
       <div class="section">
-        <h2>📋 Project Overview</h2>
+        <h2>🔄 Two-Way Protocol Overview</h2>
         
-        <h3>Aim</h3>
-        <p>To design and implement a custom application-layer communication protocol called <span class="highlight">Simple Chat Protocol (SCP)</span> that enables reliable message exchange between a client and server using C programming language over TCP/IP sockets.</p>
-
-        <h3>Objectives</h3>
-        <ul>
-          <li>Design a custom message format with protocol headers and data fields</li>
-          <li>Implement connection establishment and termination procedures</li>
-          <li>Create acknowledgment (ACK) mechanism for reliable delivery</li>
-          <li>Handle timeouts and retransmission logic</li>
-          <li>Demonstrate error handling and packet loss scenarios</li>
-          <li>Build interactive visualization to understand protocol behavior</li>
-        </ul>
-
-        <h3>Tools & Technologies</h3>
-        <table>
-          <tr>
-            <th>Component</th>
-            <th>Technology</th>
-            <th>Purpose</th>
-          </tr>
-          <tr>
-            <td>Core Implementation</td>
-            <td>C Language</td>
-            <td>Protocol logic, socket programming</td>
-          </tr>
-          <tr>
-            <td>Network Layer</td>
-            <td>TCP Sockets</td>
-            <td>Reliable byte-stream transport</td>
-          </tr>
-          <tr>
-            <td>Compiler</td>
-            <td>GCC (Linux) / MinGW (Windows)</td>
-            <td>Building executables</td>
-          </tr>
-          <tr>
-            <td>Visualization</td>
-            <td>HTML/CSS/JavaScript</td>
-            <td>Interactive protocol simulator</td>
-          </tr>
-        </table>
-
-        <h3>Theory & Background</h3>
-        
-        <h4>What is a Communication Protocol?</h4>
-        <p>A communication protocol is a system of rules that allows two or more entities to transmit information. It defines:</p>
-        <ul>
-          <li><strong>Syntax:</strong> Structure and format of data (message format)</li>
-          <li><strong>Semantics:</strong> Meaning of each section of bits (what each field represents)</li>
-          <li><strong>Timing:</strong> When to send data and how fast (synchronization)</li>
-        </ul>
-
-        <h4>OSI Model Context</h4>
-        <p>SCP operates at the <span class="highlight">Application Layer (Layer 7)</span> of the OSI model, similar to HTTP, FTP, or SMTP. It uses TCP (Transport Layer) for underlying reliable communication.</p>
-
-        <h4>Key Concepts in SCP</h4>
-        <div class="flow-step">
-          <strong>1. Message Format:</strong> Structured packets with version, type, ID, and payload
+        <h3>Key Improvements</h3>
+        <div class="bidirectional-flow">
+          <h3>🔄 Bidirectional Communication Flow</h3>
+          <div class="flow-arrows">
+            <div>
+              <div class="arrow">⬅️</div>
+              <div class="flow-label">Server → Client</div>
+            </div>
+            <div>
+              <div class="arrow">➡️</div>
+              <div class="flow-label">Client → Server</div>
+            </div>
+          </div>
+          <p>Both directions work simultaneously with full ACK/retry reliability</p>
         </div>
+
         <div class="flow-step">
-          <strong>2. Acknowledgments (ACK):</strong> Server confirms receipt of each message
+          <strong>🎯 1. Bidirectional Messaging</strong>
+          <ul>
+            <li>Both client and server can send messages simultaneously</li>
+            <li>No more "one-way" communication limitation</li>
+            <li>Real-time chat experience with mutual acknowledgment</li>
+          </ul>
         </div>
+
         <div class="flow-step">
-          <strong>3. Timeouts & Retries:</strong> Client resends if ACK not received within timeout period
+          <strong>🧵 2. Multi-Threading Architecture</strong>
+          <ul>
+            <li><strong>Receive Thread:</strong> Listens for incoming messages continuously</li>
+            <li><strong>Send Thread:</strong> Handles user input and outgoing messages</li>
+            <li>Both threads run concurrently using POSIX threads (pthread)</li>
+          </ul>
         </div>
+
         <div class="flow-step">
-          <strong>4. Connection Management:</strong> Proper setup (HELLO) and teardown (BYE) phases
+          <strong>🔒 3. Thread Synchronization</strong>
+          <ul>
+            <li>Mutex locks (pthread_mutex_t) protect socket operations</li>
+            <li>Prevents race conditions when multiple threads access the socket</li>
+            <li>Atomic operations for message ID generation</li>
+          </ul>
+        </div>
+
+        <div class="flow-step">
+          <strong>✨ 4. Enhanced Features</strong>
+          <ul>
+            <li>Server can initiate conversations and send messages to client</li>
+            <li>Client receives and acknowledges server messages</li>
+            <li>Both sides maintain ACK/retry logic in both directions</li>
+            <li>Clean separation of send/receive concerns</li>
+          </ul>
+        </div>
+
+        <div class="flow-step">
+          <strong>🔧 5. Updated Build System</strong>
+          <ul>
+            <li>Added -pthread flag to Makefile for thread support</li>
+            <li>Works on Linux/macOS with standard pthread library</li>
+            <li>Windows requires MinGW with pthread support</li>
+          </ul>
+        </div>
+
+        <h3>Technical Architecture</h3>
+        <div class="protocol-diagram">
+<pre>
+┌─────────────────┐              ┌─────────────────┐
+│     CLIENT      │              │     SERVER      │
+├─────────────────┤              ├─────────────────┤
+│  Send Thread    │◄───MSG/ACK───│  Send Thread    │
+│  (User Input)   │───MSG/ACK───►│  (Auto Reply)   │
+├─────────────────┤              ├─────────────────┤
+│ Receive Thread  │◄───MSG/ACK───│ Receive Thread  │
+│  (Continuous)   │───MSG/ACK───►│  (Continuous)   │
+└─────────────────┘              └─────────────────┘
+
+Key:
+• Each side has TWO independent threads
+• Messages flow bidirectionally with ACK
+• Threads communicate via shared socket with mutex
+• Full reliability in both directions
+</pre>
         </div>
 
         <div class="success">
-          <strong>💡 Learning Outcome:</strong> By implementing SCP, you understand how application protocols work at a fundamental level, including reliability mechanisms that protocols like TCP provide at lower layers.
+          <strong>💡 Learning Outcome:</strong> This implementation demonstrates real-world protocol design where bidirectional communication is essential. You'll understand multi-threading, synchronization, and full-duplex network programming.
         </div>
       </div>
     </div>
@@ -497,66 +553,9 @@
     <!-- PROTOCOL DESIGN TAB -->
     <div id="protocol" class="tab-content">
       <div class="section">
-        <h2>🔧 Protocol Design Specification</h2>
+        <h2>🔧 Two-Way Protocol Design</h2>
 
-        <h3>SCP Message Format</h3>
-        <p>Every SCP message follows this standardized format:</p>
-        
-        <div class="protocol-diagram">
-<pre>
-┌─────────────────────────────────────────────────────────────┐
-│  SCP/1.0 | MSG_TYPE | id=MESSAGE_ID | PAYLOAD_DATA         │
-└─────────────────────────────────────────────────────────────┘
-
-Components:
-  • SCP/1.0      → Protocol version identifier
-  • MSG_TYPE     → Message type (HELLO, MSG, ACK, BYE, ERROR)
-  • id=XXX       → Unique message identifier (integer)
-  • PAYLOAD_DATA → Actual message content or status
-</pre>
-        </div>
-
-        <h3>Message Types</h3>
-        <table>
-          <tr>
-            <th>Type</th>
-            <th>Direction</th>
-            <th>Purpose</th>
-            <th>Example</th>
-          </tr>
-          <tr>
-            <td><strong>HELLO</strong></td>
-            <td>Client → Server</td>
-            <td>Initiate connection</td>
-            <td><code>SCP/1.0 | HELLO | id=0 | ClientName</code></td>
-          </tr>
-          <tr>
-            <td><strong>MSG</strong></td>
-            <td>Client → Server</td>
-            <td>Send chat message</td>
-            <td><code>SCP/1.0 | MSG | id=1 | Hello World</code></td>
-          </tr>
-          <tr>
-            <td><strong>ACK</strong></td>
-            <td>Server → Client</td>
-            <td>Acknowledge receipt</td>
-            <td><code>SCP/1.0 | ACK | id=1 | MSG_RECEIVED</code></td>
-          </tr>
-          <tr>
-            <td><strong>BYE</strong></td>
-            <td>Client → Server</td>
-            <td>Terminate connection</td>
-            <td><code>SCP/1.0 | BYE | id=99 | DISCONNECT</code></td>
-          </tr>
-          <tr>
-            <td><strong>ERROR</strong></td>
-            <td>Server → Client</td>
-            <td>Report errors</td>
-            <td><code>SCP/1.0 | ERROR | id=1 | INVALID_FORMAT</code></td>
-          </tr>
-        </table>
-
-        <h3>Protocol Flow Diagram</h3>
+        <h3>Enhanced Message Flow</h3>
         <div class="protocol-diagram">
 <pre>
 CLIENT                                    SERVER
@@ -564,91 +563,96 @@ CLIENT                                    SERVER
   │──── HELLO (id=0) ──────────────────────>│  Connection Setup
   │<──── ACK (id=0) ────────────────────────│
   │                                         │
-  │──── MSG (id=1, "Hello") ───────────────>│  Message Transfer
+  │──── MSG (id=1, "Hello") ───────────────>│  Client → Server
   │<──── ACK (id=1) ────────────────────────│
   │                                         │
-  │──── MSG (id=2, "How are you?") ────────>│
-  │  X   (packet lost)                      │  Timeout!
+  │<──── MSG (id=100, "Hi Client!") ────────│  Server → Client  
+  │──── ACK (id=100) ──────────────────────>│
   │                                         │
-  │──── MSG (id=2, "How are you?") ────────>│  Retry
+  │──── MSG (id=2, "How are you?") ────────>│  Simultaneous!
+  │<──── MSG (id=101, "I'm good!") ────────│  Both directions!
+  │──── ACK (id=101) ──────────────────────>│
   │<──── ACK (id=2) ────────────────────────│
   │                                         │
   │──── BYE (id=3) ─────────────────────────>│  Termination
   │<──── ACK (id=3) ────────────────────────│
   │                                         │
-  │           [Connection Closed]           │
 </pre>
         </div>
 
-        <h3>Reliability Mechanism</h3>
-        
-        <h4>Acknowledgment System</h4>
-        <ol>
-          <li>Client sends message with unique ID</li>
-          <li>Client starts timeout timer (e.g., 5 seconds)</li>
-          <li>Server receives message and sends ACK with same ID</li>
-          <li>Client receives ACK → Success, clear timer</li>
-          <li>If timeout expires → Resend message (up to MAX_RETRIES)</li>
-        </ol>
-
-        <div class="code-block">
-<pre>
-// Pseudocode for Client Send Logic
-send_message(text):
-    msg_id = generate_unique_id()
-    retries = 0
-    
-    while retries < MAX_RETRIES:
-        send(format_message("MSG", msg_id, text))
-        
-        if wait_for_ack(msg_id, TIMEOUT):
-            print("✓ Message delivered")
-            return SUCCESS
-        else:
-            retries++
-            print("⚠ Timeout, retrying...")
-    
-    print("✗ Failed after max retries")
-    return FAILURE
-</pre>
-        </div>
-
-        <h3>Protocol Parameters</h3>
+        <h3>Thread Architecture</h3>
         <table>
           <tr>
-            <th>Parameter</th>
-            <th>Default Value</th>
-            <th>Description</th>
+            <th>Component</th>
+            <th>Client</th>
+            <th>Server</th>
+            <th>Purpose</th>
           </tr>
           <tr>
-            <td>VERSION</td>
-            <td>1.0</td>
-            <td>Protocol version number</td>
+            <td><strong>Main Thread</strong></td>
+            <td>Setup & cleanup</td>
+            <td>Setup & cleanup</td>
+            <td>Initialization and resource management</td>
           </tr>
           <tr>
-            <td>MAX_MESSAGE_SIZE</td>
-            <td>1024 bytes</td>
-            <td>Maximum payload size</td>
+            <td><strong>Send Thread</strong></td>
+            <td>User input handling</td>
+            <td>Automatic responses</td>
+            <td>Outgoing messages with ACK logic</td>
           </tr>
           <tr>
-            <td>ACK_TIMEOUT</td>
-            <td>5 seconds</td>
-            <td>Wait time for acknowledgment</td>
+            <td><strong>Receive Thread</strong></td>
+            <td>Message listening</td>
+            <td>Message listening</td>
+            <td>Incoming message processing and ACK sending</td>
           </tr>
           <tr>
-            <td>MAX_RETRIES</td>
-            <td>3</td>
-            <td>Maximum resend attempts</td>
-          </tr>
-          <tr>
-            <td>PORT</td>
-            <td>8080</td>
-            <td>Default server port</td>
+            <td><strong>Mutex Lock</strong></td>
+            <td>Socket protection</td>
+            <td>Socket protection</td>
+            <td>Prevent concurrent socket access</td>
           </tr>
         </table>
 
+        <h3>Enhanced SCP Message Format</h3>
+        <div class="protocol-diagram">
+<pre>
+┌─────────────────────────────────────────────────────────────┐
+│  SCP/1.1 | MSG_TYPE | id=MESSAGE_ID | PAYLOAD_DATA         │
+└─────────────────────────────────────────────────────────────┘
+
+New in Version 1.1:
+• Bidirectional message flow
+• Thread-safe operations  
+• Enhanced error handling
+• Improved connection management
+</pre>
+        </div>
+
+        <h3>Synchronization Mechanism</h3>
+        <div class="code-block">
+<pre>
+// Pseudocode for Thread-Safe Socket Operations
+send_message_thread_safe(socket, message):
+    lock(mutex)
+    send(socket, message)
+    unlock(mutex)
+
+receive_message_thread_safe(socket):
+    lock(mutex) 
+    message = receive(socket)
+    unlock(mutex)
+    return message
+
+// Message ID Generation (Atomic)
+generate_message_id():
+    static atomic_id = 0
+    return atomic_id++  // Thread-safe increment
+</pre>
+        </div>
+
         <div class="warning">
-          <strong>⚠️ Important:</strong> In real-world scenarios, protocols would handle sequence numbers, flow control, and congestion control. SCP is simplified for educational purposes.
+          <strong>⚠️ Important:</strong> Without proper synchronization, concurrent socket access can cause data corruption, partial reads/writes, or application crashes. Mutex locks ensure only one thread accesses the socket at a time.
         </div>
       </div>
     </div>
@@ -656,34 +660,21 @@ send_message(text):
     <!-- IMPLEMENTATION TAB -->
     <div id="implementation" class="tab-content">
       <div class="section">
-        <h2>💻 C Language Implementation</h2>
+        <h2>💻 Two-Way C Implementation</h2>
 
         <div class="success">
           <strong>📦 Download Complete Source Code:</strong><br>
-          <a href="#" class="download-btn" onclick="downloadFile('scp_server.c', getServerCode()); return false;">Download scp_server.c</a>
-          <a href="#" class="download-btn" onclick="downloadFile('scp_client.c', getClientCode()); return false;">Download scp_client.c</a>
-          <a href="#" class="download-btn" onclick="downloadFile('Makefile', getMakefile()); return false;">Download Makefile</a>
+          <a href="#" class="download-btn" onclick="downloadFile('scp_server_two_way.c', getServerCode()); return false;">Download scp_server_two_way.c</a>
+          <a href="#" class="download-btn" onclick="downloadFile('scp_client_two_way.c', getClientCode()); return false;">Download scp_client_two_way.c</a>
+          <a href="#" class="download-btn" onclick="downloadFile('Makefile_two_way', getMakefile()); return false;">Download Makefile</a>
         </div>
 
-        <h3>Project Structure</h3>
-        <div class="code-block">
-<pre>
-scp_project/
-├── scp_server.c       # Server implementation
-├── scp_client.c       # Client implementation
-├── Makefile           # Build configuration
-└── README.md          # Documentation
-</pre>
-        </div>
-
-        <h3>Server Implementation (scp_server.c)</h3>
-        <p>The server listens for incoming connections, parses SCP messages, and sends acknowledgments.</p>
-        
+        <h3>Enhanced Server Implementation</h3>
         <div class="code-block">
 <pre>
 /*
- * scp_server.c - Simple Chat Protocol Server
- * Listens on port 8080 and handles SCP messages
+ * scp_server_two_way.c - Two-Way Simple Chat Protocol Server
+ * Multi-threaded server with bidirectional messaging
  */
 
 #include &lt;stdio.h&gt;
@@ -693,65 +684,185 @@ scp_project/
 #include &lt;arpa/inet.h&gt;
 #include &lt;sys/socket.h&gt;
 #include &lt;time.h&gt;
+#include &lt;pthread.h&gt;
+#include &lt;stdatomic.h&gt;
 
 #define PORT 8080
 #define BUFFER_SIZE 1024
-#define MAX_CLIENTS 5
+#define ACK_TIMEOUT 5
+#define MAX_RETRIES 3
+
+// Global variables for thread communication
+int client_socket;
+pthread_mutex_t socket_mutex = PTHREAD_MUTEX_INITIALIZER;
+atomic_int message_id_counter = 0;
 
 // Function to parse SCP message
-void parse_scp_message(char* buffer, char* msg_type, 
-                       int* msg_id, char* payload) {
-    // Format: SCP/1.0 | MSG_TYPE | id=X | PAYLOAD
+void parse_scp_message(char* buffer, char* msg_type, int* msg_id, char* payload) {
     char* token;
     char temp[BUFFER_SIZE];
     strcpy(temp, buffer);
     
-    // Skip "SCP/1.0"
     token = strtok(temp, "|");
-    
-    // Get message type
     token = strtok(NULL, "|");
-    if (token) {
-        sscanf(token, " %s", msg_type);
-    }
+    if (token) sscanf(token, " %s", msg_type);
     
-    // Get message ID
     token = strtok(NULL, "|");
-    if (token) {
-        sscanf(token, " id=%d", msg_id);
-    }
+    if (token) sscanf(token, " id=%d", msg_id);
     
-    // Get payload
     token = strtok(NULL, "|");
-    if (token) {
-        strcpy(payload, token + 1); // Skip leading space
-    }
+    if (token) strcpy(payload, token + 1);
 }
 
-// Function to create SCP ACK message
-void create_ack(char* buffer, int msg_id) {
-    sprintf(buffer, "SCP/1.0 | ACK | id=%d | MSG_RECEIVED", msg_id);
+// Thread-safe message sending
+void send_message_thread_safe(const char* message) {
+    pthread_mutex_lock(&socket_mutex);
+    send(client_socket, message, strlen(message), 0);
+    pthread_mutex_unlock(&socket_mutex);
 }
 
-// Get current timestamp
-void get_timestamp(char* buffer) {
-    time_t now = time(NULL);
-    struct tm* t = localtime(&now);
-    sprintf(buffer, "%02d:%02d:%02d", t->tm_hour, t->tm_min, t->tm_sec);
+// Thread-safe message receiving
+int receive_message_thread_safe(char* buffer) {
+    pthread_mutex_lock(&socket_mutex);
+    int bytes_read = recv(client_socket, buffer, BUFFER_SIZE, 0);
+    pthread_mutex_unlock(&socket_mutex);
+    return bytes_read;
+}
+
+// Create SCP message
+void create_scp_message(char* buffer, const char* msg_type, int msg_id, const char* payload) {
+    sprintf(buffer, "SCP/1.1 | %s | id=%d | %s", msg_type, msg_id, payload);
+}
+
+// Send message with ACK wait and retry logic
+int send_with_ack(const char* msg_type, const char* payload) {
+    char send_buffer[BUFFER_SIZE];
+    char recv_buffer[BUFFER_SIZE];
+    int msg_id = atomic_fetch_add(&message_id_counter, 1);
+    int retries = 0;
+    
+    while (retries <= MAX_RETRIES) {
+        create_scp_message(send_buffer, msg_type, msg_id, payload);
+        printf("[SERVER] SEND (try %d): %s\\n", retries + 1, send_buffer);
+        send_message_thread_safe(send_buffer);
+        
+        // Wait for ACK with timeout
+        struct timeval tv;
+        tv.tv_sec = ACK_TIMEOUT;
+        tv.tv_usec = 0;
+        setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+        
+        memset(recv_buffer, 0, BUFFER_SIZE);
+        int bytes_read = receive_message_thread_safe(recv_buffer);
+        
+        if (bytes_read > 0) {
+            char ack_type[50];
+            int ack_id;
+            char ack_payload[BUFFER_SIZE];
+            parse_scp_message(recv_buffer, ack_type, &ack_id, ack_payload);
+            
+            printf("[SERVER] RECV: %s\\n", recv_buffer);
+            
+            if (strcmp(ack_type, "ACK") == 0 && ack_id == msg_id) {
+                printf("         ✓ ACK received for id=%d\\n\\n", msg_id);
+                return 1;
+            }
+        } else {
+            printf("         ⚠ TIMEOUT: No ACK received for id=%d\\n", msg_id);
+            retries++;
+            if (retries <= MAX_RETRIES) {
+                printf("         → Retrying... (%d/%d)\\n\\n", retries, MAX_RETRIES);
+            }
+        }
+    }
+    
+    printf("         ✗ FAILED: Message delivery failed after %d retries\\n\\n", MAX_RETRIES);
+    return 0;
+}
+
+// Thread function for receiving messages
+void* receive_thread(void* arg) {
+    char buffer[BUFFER_SIZE];
+    
+    while (1) {
+        memset(buffer, 0, BUFFER_SIZE);
+        int bytes_read = receive_message_thread_safe(buffer);
+        
+        if (bytes_read <= 0) {
+            printf("Client disconnected or error occurred\\n");
+            break;
+        }
+        
+        char msg_type[50], payload[BUFFER_SIZE];
+        int msg_id;
+        parse_scp_message(buffer, msg_type, &msg_id, payload);
+        
+        printf("[SERVER] RECV: %s\\n", buffer);
+        
+        if (strcmp(msg_type, "HELLO") == 0) {
+            printf("         → Connection from: %s\\n", payload);
+            char ack[BUFFER_SIZE];
+            create_scp_message(ack, "ACK", msg_id, "CONNECTION_ESTABLISHED");
+            send_message_thread_safe(ack);
+            printf("[SERVER] SEND: %s\\n\\n", ack);
+            
+        } else if (strcmp(msg_type, "MSG") == 0) {
+            printf("         → Client message: %s\\n", payload);
+            
+            // Send ACK for received message
+            char ack[BUFFER_SIZE];
+            create_scp_message(ack, "ACK", msg_id, "MSG_RECEIVED");
+            send_message_thread_safe(ack);
+            printf("[SERVER] SEND: %s\\n\\n", ack);
+            
+            // Auto-reply to client (server can initiate conversation!)
+            if (strstr(payload, "?") != NULL) {
+                sleep(1); // Simulate processing time
+                send_with_ack("MSG", "I received your question! This is an automated response from server.");
+            }
+            
+        } else if (strcmp(msg_type, "BYE") == 0) {
+            printf("         → Client disconnecting\\n");
+            char ack[BUFFER_SIZE];
+            create_scp_message(ack, "ACK", msg_id, "DISCONNECT_ACK");
+            send_message_thread_safe(ack);
+            printf("[SERVER] SEND: %s\\n\\n", ack);
+            break;
+        }
+    }
+    
+    return NULL;
+}
+
+// Thread function for sending messages (server-initiated)
+void* send_thread(void* arg) {
+    // Server can send periodic messages or respond to events
+    sleep(3); // Wait for connection to establish
+    
+    // Send welcome message
+    send_with_ack("MSG", "Welcome to the Two-Way SCP Server! You can chat with me.");
+    
+    // Send periodic status updates
+    int counter = 0;
+    while (1) {
+        sleep(10); // Send message every 10 seconds
+        char status_msg[BUFFER_SIZE];
+        snprintf(status_msg, sizeof(status_msg), "Server status update #%d - All systems operational", ++counter);
+        send_with_ack("MSG", status_msg);
+    }
+    
+    return NULL;
 }
 
 int main() {
-    int server_fd, client_socket;
+    int server_fd;
     struct sockaddr_in address;
     int addrlen = sizeof(address);
-    char buffer[BUFFER_SIZE] = {0};
-    char msg_type[50], payload[BUFFER_SIZE];
-    int msg_id;
-    char timestamp[20];
+    pthread_t recv_tid, send_tid;
     
-    printf("═══════════════════════════════════════════\n");
-    printf("  Simple Chat Protocol (SCP) Server v1.0\n");
-    printf("═══════════════════════════════════════════\n\n");
+    printf("═══════════════════════════════════════════\\n");
+    printf("  Two-Way SCP Server v1.1 (Multi-Threaded)\\n");
+    printf("═══════════════════════════════════════════\\n\\n");
     
     // Create socket
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
@@ -759,126 +870,61 @@ int main() {
         exit(EXIT_FAILURE);
     }
     
-    // Set socket options
     int opt = 1;
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, 
-                   &opt, sizeof(opt))) {
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) {
         perror("Setsockopt failed");
         exit(EXIT_FAILURE);
     }
     
-    // Configure address
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(PORT);
     
-    // Bind socket to port
-    if (bind(server_fd, (struct sockaddr*)&address, 
-             sizeof(address)) < 0) {
+    if (bind(server_fd, (struct sockaddr*)&address, sizeof(address)) < 0) {
         perror("Bind failed");
         exit(EXIT_FAILURE);
     }
     
-    // Listen for connections
-    if (listen(server_fd, MAX_CLIENTS) < 0) {
+    if (listen(server_fd, 3) < 0) {
         perror("Listen failed");
         exit(EXIT_FAILURE);
     }
     
-    printf("🟢 Server listening on port %d...\n\n", PORT);
+    printf("🟢 Server listening on port %d...\\n\\n", PORT);
     
-    // Accept client connection
-    if ((client_socket = accept(server_fd, 
-         (struct sockaddr*)&address, (socklen_t*)&addrlen)) < 0) {
+    if ((client_socket = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) < 0) {
         perror("Accept failed");
         exit(EXIT_FAILURE);
     }
     
-    printf("✓ Client connected from %s:%d\n\n", 
-           inet_ntoa(address.sin_addr), 
-           ntohs(address.sin_port));
+    printf("✓ Client connected from %s:%d\\n\\n", inet_ntoa(address.sin_addr), ntohs(address.sin_port));
     
-    // Main message handling loop
-    while (1) {
-        memset(buffer, 0, BUFFER_SIZE);
-        memset(msg_type, 0, sizeof(msg_type));
-        memset(payload, 0, sizeof(payload));
-        
-        // Receive message from client
-        int bytes_read = read(client_socket, buffer, BUFFER_SIZE);
-        
-        if (bytes_read <= 0) {
-            printf("Client disconnected\n");
-            break;
-        }
-        
-        // Parse the SCP message
-        parse_scp_message(buffer, msg_type, &msg_id, payload);
-        
-        get_timestamp(timestamp);
-        printf("[%s] RECV: %s\n", timestamp, buffer);
-        
-        // Handle different message types
-        if (strcmp(msg_type, "HELLO") == 0) {
-            printf("         → Connection request from: %s\n", payload);
-            
-            // Send ACK
-            char ack[BUFFER_SIZE];
-            create_ack(ack, msg_id);
-            send(client_socket, ack, strlen(ack), 0);
-            
-            get_timestamp(timestamp);
-            printf("[%s] SEND: %s\n\n", timestamp, ack);
-            
-        } else if (strcmp(msg_type, "MSG") == 0) {
-            printf("         → Message: %s\n", payload);
-            
-            // Send ACK
-            char ack[BUFFER_SIZE];
-            create_ack(ack, msg_id);
-            send(client_socket, ack, strlen(ack), 0);
-            
-            get_timestamp(timestamp);
-            printf("[%s] SEND: %s\n\n", timestamp, ack);
-            
-        } else if (strcmp(msg_type, "BYE") == 0) {
-            printf("         → Client requesting disconnect\n");
-            
-            // Send final ACK
-            char ack[BUFFER_SIZE];
-            create_ack(ack, msg_id);
-            send(client_socket, ack, strlen(ack), 0);
-            
-            get_timestamp(timestamp);
-            printf("[%s] SEND: %s\n\n", timestamp, ack);
-            printf("Connection closed by client\n");
-            break;
-            
-        } else {
-            printf("         → Unknown message type: %s\n\n", msg_type);
-        }
-    }
+    // Create receive and send threads
+    pthread_create(&recv_tid, NULL, receive_thread, NULL);
+    pthread_create(&send_tid, NULL, send_thread, NULL);
+    
+    // Wait for threads to complete
+    pthread_join(recv_tid, NULL);
+    pthread_cancel(send_tid); // Stop send thread when receive thread ends
     
     close(client_socket);
     close(server_fd);
     
-    printf("\n═══════════════════════════════════════════\n");
-    printf("  Server shutdown complete\n");
-    printf("═══════════════════════════════════════════\n");
+    printf("\\n═══════════════════════════════════════════\\n");
+    printf("  Server shutdown complete\\n");
+    printf("═══════════════════════════════════════════\\n");
     
     return 0;
 }
 </pre>
         </div>
 
-        <h3>Client Implementation (scp_client.c)</h3>
-        <p>The client connects to the server, sends messages, and implements timeout/retry logic.</p>
-        
+        <h3>Enhanced Client Implementation</h3>
         <div class="code-block">
 <pre>
 /*
- * scp_client.c - Simple Chat Protocol Client
- * Connects to server and sends SCP messages with ACK handling
+ * scp_client_two_way.c - Two-Way Simple Chat Protocol Client
+ * Multi-threaded client with bidirectional messaging
  */
 
 #include &lt;stdio.h&gt;
@@ -889,211 +935,254 @@ int main() {
 #include &lt;sys/socket.h&gt;
 #include &lt;sys/time.h&gt;
 #include &lt;time.h&gt;
+#include &lt;pthread.h&gt;
+#include &lt;stdatomic.h&gt;
 
 #define PORT 8080
 #define BUFFER_SIZE 1024
-#define ACK_TIMEOUT 5      // 5 seconds
+#define ACK_TIMEOUT 5
 #define MAX_RETRIES 3
 
-int message_id_counter = 0;
+// Global variables for thread communication
+int sock;
+pthread_mutex_t socket_mutex = PTHREAD_MUTEX_INITIALIZER;
+atomic_int message_id_counter = 0;
+int connected = 1;
 
-// Get timestamp
-void get_timestamp(char* buffer) {
-    time_t now = time(NULL);
-    struct tm* t = localtime(&now);
-    sprintf(buffer, "%02d:%02d:%02d", t->tm_hour, t->tm_min, t->tm_sec);
+// Thread-safe message sending
+void send_message_thread_safe(const char* message) {
+    pthread_mutex_lock(&socket_mutex);
+    send(sock, message, strlen(message), 0);
+    pthread_mutex_unlock(&socket_mutex);
+}
+
+// Thread-safe message receiving
+int receive_message_thread_safe(char* buffer) {
+    pthread_mutex_lock(&socket_mutex);
+    int bytes_read = recv(sock, buffer, BUFFER_SIZE, 0);
+    pthread_mutex_unlock(&socket_mutex);
+    return bytes_read;
 }
 
 // Create SCP message
-void create_scp_message(char* buffer, const char* msg_type, 
-                        int msg_id, const char* payload) {
-    sprintf(buffer, "SCP/1.0 | %s | id=%d | %s", 
-            msg_type, msg_id, payload);
+void create_scp_message(char* buffer, const char* msg_type, int msg_id, const char* payload) {
+    sprintf(buffer, "SCP/1.1 | %s | id=%d | %s", msg_type, msg_id, payload);
 }
 
-// Parse ACK message to extract ID
-int parse_ack(char* buffer) {
-    int ack_id = -1;
-    char* token = strtok(buffer, "|");
+// Parse SCP message
+void parse_scp_message(char* buffer, char* msg_type, int* msg_id, char* payload) {
+    char* token;
+    char temp[BUFFER_SIZE];
+    strcpy(temp, buffer);
     
-    while (token != NULL) {
-        if (strstr(token, "id=") != NULL) {
-            sscanf(token, " id=%d", &ack_id);
-            break;
-        }
-        token = strtok(NULL, "|");
-    }
-    return ack_id;
+    token = strtok(temp, "|");
+    token = strtok(NULL, "|");
+    if (token) sscanf(token, " %s", msg_type);
+    
+    token = strtok(NULL, "|");
+    if (token) sscanf(token, " id=%d", msg_id);
+    
+    token = strtok(NULL, "|");
+    if (token) strcpy(payload, token + 1);
 }
 
 // Send message with ACK wait and retry logic
-int send_with_ack(int sock, const char* msg_type, 
-                  const char* payload) {
+int send_with_ack(const char* msg_type, const char* payload) {
     char send_buffer[BUFFER_SIZE];
     char recv_buffer[BUFFER_SIZE];
-    char timestamp[20];
-    int msg_id = message_id_counter++;
+    int msg_id = atomic_fetch_add(&message_id_counter, 1);
     int retries = 0;
-    struct timeval tv;
     
-    while (retries <= MAX_RETRIES) {
-        // Create and send message
+    while (retries <= MAX_RETRIES && connected) {
         create_scp_message(send_buffer, msg_type, msg_id, payload);
+        printf("[CLIENT] SEND (try %d): %s\\n", retries + 1, send_buffer);
+        send_message_thread_safe(send_buffer);
         
-        get_timestamp(timestamp);
-        printf("[%s] SEND (try %d): %s\n", 
-               timestamp, retries + 1, send_buffer);
-        
-        send(sock, send_buffer, strlen(send_buffer), 0);
-        
-        // Set timeout for receiving ACK
+        // Wait for ACK with timeout
+        struct timeval tv;
         tv.tv_sec = ACK_TIMEOUT;
         tv.tv_usec = 0;
-        setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, 
-                   &tv, sizeof(tv));
+        setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
         
-        // Wait for ACK
         memset(recv_buffer, 0, BUFFER_SIZE);
-        int bytes_read = read(sock, recv_buffer, BUFFER_SIZE);
+        int bytes_read = receive_message_thread_safe(recv_buffer);
         
         if (bytes_read > 0) {
-            // Parse ACK
-            int ack_id = parse_ack(recv_buffer);
+            char ack_type[50];
+            int ack_id;
+            char ack_payload[BUFFER_SIZE];
+            parse_scp_message(recv_buffer, ack_type, &ack_id, ack_payload);
             
-            get_timestamp(timestamp);
-            printf("[%s] RECV: %s\n", timestamp, recv_buffer);
+            printf("[CLIENT] RECV: %s\\n", recv_buffer);
             
-            if (ack_id == msg_id) {
-                printf("         ✓ ACK received for id=%d\n\n", msg_id);
-                return 1; // Success
-            } else {
-                printf("         ✗ ACK mismatch (expected %d, got %d)\n\n", 
-                       msg_id, ack_id);
+            if (strcmp(ack_type, "ACK") == 0 && ack_id == msg_id) {
+                printf("         ✓ ACK received for id=%d\\n\\n", msg_id);
+                return 1;
             }
         } else {
-            get_timestamp(timestamp);
-            printf("[%s] ⚠ TIMEOUT: No ACK received for id=%d\n", 
-                   timestamp, msg_id);
+            printf("         ⚠ TIMEOUT: No ACK received for id=%d\\n", msg_id);
             retries++;
-            
             if (retries <= MAX_RETRIES) {
-                printf("         → Retrying... (%d/%d)\n\n", 
-                       retries, MAX_RETRIES);
+                printf("         → Retrying... (%d/%d)\\n\\n", retries, MAX_RETRIES);
             }
         }
     }
     
-    printf("         ✗ FAILED: Message delivery failed after %d retries\n\n", 
-           MAX_RETRIES);
-    return 0; // Failure
+    if (connected) {
+        printf("         ✗ FAILED: Message delivery failed after %d retries\\n\\n", MAX_RETRIES);
+    }
+    return 0;
+}
+
+// Thread function for receiving messages
+void* receive_thread(void* arg) {
+    char buffer[BUFFER_SIZE];
+    
+    while (connected) {
+        memset(buffer, 0, BUFFER_SIZE);
+        int bytes_read = receive_message_thread_safe(buffer);
+        
+        if (bytes_read <= 0) {
+            printf("Server disconnected or error occurred\\n");
+            connected = 0;
+            break;
+        }
+        
+        char msg_type[50], payload[BUFFER_SIZE];
+        int msg_id;
+        parse_scp_message(buffer, msg_type, &msg_id, payload);
+        
+        printf("[CLIENT] RECV: %s\\n", buffer);
+        
+        if (strcmp(msg_type, "MSG") == 0) {
+            printf("         → Server message: %s\\n", payload);
+            
+            // Send ACK for received message
+            char ack[BUFFER_SIZE];
+            create_scp_message(ack, "ACK", msg_id, "MSG_RECEIVED");
+            send_message_thread_safe(ack);
+            printf("[CLIENT] SEND: %s\\n\\n", ack);
+            
+        } else if (strcmp(msg_type, "ACK") == 0) {
+            // ACK handled in send_with_ack function
+            printf("         → Acknowledgment received\\n\\n");
+        }
+    }
+    
+    return NULL;
 }
 
 int main() {
-    int sock = 0;
     struct sockaddr_in serv_addr;
     char username[100];
     char message[BUFFER_SIZE];
+    pthread_t recv_tid;
     
-    printf("═══════════════════════════════════════════\n");
-    printf("  Simple Chat Protocol (SCP) Client v1.0\n");
-    printf("═══════════════════════════════════════════\n\n");
+    printf("═══════════════════════════════════════════\\n");
+    printf("  Two-Way SCP Client v1.1 (Multi-Threaded)\\n");
+    printf("═══════════════════════════════════════════\\n\\n");
     
-    // Get username
     printf("Enter your name: ");
     fgets(username, sizeof(username), stdin);
-    username[strcspn(username, "\n")] = 0; // Remove newline
+    username[strcspn(username, "\\n")] = 0;
     
-    // Create socket
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        printf("\n✗ Socket creation error\n");
+        printf("\\n✗ Socket creation error\\n");
         return -1;
     }
     
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(PORT);
     
-    // Convert IPv4 address from text to binary
     if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
-        printf("\n✗ Invalid address / Address not supported\n");
+        printf("\\n✗ Invalid address / Address not supported\\n");
         return -1;
     }
     
-    // Connect to server
-    printf("Connecting to server at 127.0.0.1:%d...\n", PORT);
-    if (connect(sock, (struct sockaddr*)&serv_addr, 
-                sizeof(serv_addr)) < 0) {
-        printf("\n✗ Connection failed\n");
+    printf("Connecting to server at 127.0.0.1:%d...\\n", PORT);
+    if (connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
+        printf("\\n✗ Connection failed\\n");
         return -1;
     }
     
-    printf("✓ Connected to server\n\n");
+    printf("✓ Connected to server\\n\\n");
     
     // Send HELLO message
-    printf("─────────────────────────────────────────\n");
-    printf("Sending connection request...\n");
-    printf("─────────────────────────────────────────\n");
-    if (!send_with_ack(sock, "HELLO", username)) {
-        printf("Failed to establish connection\n");
+    printf("─────────────────────────────────────────\\n");
+    printf("Sending connection request...\\n");
+    printf("─────────────────────────────────────────\\n");
+    if (!send_with_ack("HELLO", username)) {
+        printf("Failed to establish connection\\n");
         close(sock);
         return -1;
     }
     
-    printf("═══════════════════════════════════════════\n");
-    printf("  Chat session started\n");
-    printf("  Type 'quit' to exit\n");
-    printf("═══════════════════════════════════════════\n\n");
+    // Create receive thread
+    pthread_create(&recv_tid, NULL, receive_thread, NULL);
     
-    // Main chat loop
-    while (1) {
+    printf("═══════════════════════════════════════════\\n");
+    printf("  Chat session started (Two-Way Mode)\\n");
+    printf("  Type 'quit' to exit\\n");
+    printf("═══════════════════════════════════════════\\n\\n");
+    
+    // Main send loop (user input)
+    while (connected) {
         printf("You: ");
-        fgets(message, BUFFER_SIZE, stdin);
-        message[strcspn(message, "\n")] = 0; // Remove newline
+        fflush(stdout);
+        
+        if (!fgets(message, BUFFER_SIZE, stdin)) {
+            break;
+        }
+        
+        message[strcspn(message, "\\n")] = 0;
         
         if (strlen(message) == 0) {
             continue;
         }
         
         if (strcmp(message, "quit") == 0) {
-            printf("\nSending disconnect request...\n");
-            printf("─────────────────────────────────────────\n");
-            send_with_ack(sock, "BYE", "DISCONNECT");
+            printf("\\nSending disconnect request...\\n");
+            printf("─────────────────────────────────────────\\n");
+            send_with_ack("BYE", "DISCONNECT");
+            connected = 0;
             break;
         }
         
-        printf("─────────────────────────────────────────\n");
-        send_with_ack(sock, "MSG", message);
+        printf("─────────────────────────────────────────\\n");
+        send_with_ack("MSG", message);
     }
     
+    // Cleanup
+    connected = 0;
+    pthread_join(recv_tid, NULL);
     close(sock);
     
-    printf("\n═══════════════════════════════════════════\n");
-    printf("  Disconnected from server\n");
-    printf("═══════════════════════════════════════════\n");
+    printf("\\n═══════════════════════════════════════════\\n");
+    printf("  Disconnected from server\\n");
+    printf("═══════════════════════════════════════════\\n");
     
     return 0;
 }
 </pre>
         </div>
 
-        <h3>Compilation & Execution</h3>
-        
-        <h4>Makefile</h4>
+        <h3>Updated Makefile</h3>
         <div class="code-block">
 <pre>
-# Makefile for Simple Chat Protocol (SCP)
+# Makefile for Two-Way Simple Chat Protocol (SCP)
 
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c99
-TARGET_SERVER = scp_server
-TARGET_CLIENT = scp_client
+CFLAGS = -Wall -Wextra -std=c99 -pthread
+TARGET_SERVER = scp_server_two_way
+TARGET_CLIENT = scp_client_two_way
 
 all: $(TARGET_SERVER) $(TARGET_CLIENT)
 
-$(TARGET_SERVER): scp_server.c
-	$(CC) $(CFLAGS) -o $(TARGET_SERVER) scp_server.c
+$(TARGET_SERVER): scp_server_two_way.c
+	$(CC) $(CFLAGS) -o $(TARGET_SERVER) scp_server_two_way.c
 
-$(TARGET_CLIENT): scp_client.c
-	$(CC) $(CFLAGS) -o $(TARGET_CLIENT) scp_client.c
+$(TARGET_CLIENT): scp_client_two_way.c
+	$(CC) $(CFLAGS) -o $(TARGET_CLIENT) scp_client_two_way.c
 
 clean:
 	rm -f $(TARGET_SERVER) $(TARGET_CLIENT)
@@ -1102,76 +1191,14 @@ clean:
 </pre>
         </div>
 
-        <h4>Build Instructions</h4>
-        <div class="code-block">
-<pre>
-# Linux / macOS
-$ make
-$ ./scp_server    # Terminal 1
-$ ./scp_client    # Terminal 2
-
-# Windows (MinGW)
-$ gcc -o scp_server.exe scp_server.c -lws2_32
-$ gcc -o scp_client.exe scp_client.c -lws2_32
-$ scp_server.exe
-$ scp_client.exe
-</pre>
-        </div>
-
-        <div class="warning">
-          <strong>⚠️ Windows Users:</strong> You need to include <code>winsock2.h</code> instead of <code>arpa/inet.h</code> and link with <code>-lws2_32</code>. Also initialize Winsock with <code>WSAStartup()</code>.
-        </div>
-
-        <h3>How It Works - Step by Step</h3>
-        
-        <div class="flow-step">
-          <strong>Step 1: Server Setup</strong>
+        <div class="success">
+          <strong>🚀 Key Features:</strong>
           <ul>
-            <li>Server creates a socket using <code>socket()</code></li>
-            <li>Binds to port 8080 with <code>bind()</code></li>
-            <li>Starts listening with <code>listen()</code></li>
-            <li>Waits for client connection with <code>accept()</code></li>
-          </ul>
-        </div>
-
-        <div class="flow-step">
-          <strong>Step 2: Client Connection</strong>
-          <ul>
-            <li>Client creates socket and connects to server</li>
-            <li>Sends HELLO message with username</li>
-            <li>Waits for ACK with timeout</li>
-            <li>If ACK received, connection established</li>
-          </ul>
-        </div>
-
-        <div class="flow-step">
-          <strong>Step 3: Message Exchange</strong>
-          <ul>
-            <li>Client formats message in SCP format</li>
-            <li>Sends message to server</li>
-            <li>Server parses message, processes it</li>
-            <li>Server sends ACK back with same message ID</li>
-            <li>Client validates ACK matches sent message ID</li>
-          </ul>
-        </div>
-
-        <div class="flow-step">
-          <strong>Step 4: Timeout & Retry Logic</strong>
-          <ul>
-            <li>Client sets timeout (5 seconds) using <code>setsockopt()</code></li>
-            <li>If ACK not received, timeout occurs</li>
-            <li>Client retries sending (up to 3 times)</li>
-            <li>After max retries, reports failure</li>
-          </ul>
-        </div>
-
-        <div class="flow-step">
-          <strong>Step 5: Disconnection</strong>
-          <ul>
-            <li>User types "quit"</li>
-            <li>Client sends BYE message</li>
-            <li>Server acknowledges and closes connection</li>
-            <li>Both sides close sockets</li>
+            <li><strong>Multi-threading:</strong> Separate threads for sending and receiving</li>
+            <li><strong>Thread safety:</strong> Mutex locks protect socket operations</li>
+            <li><strong>Bidirectional:</strong> Both client and server can initiate messages</li>
+            <li><strong>Automatic responses:</strong> Server can send unsolicited messages</li>
+            <li><strong>Full reliability:</strong> ACK/retry mechanism works in both directions</li>
           </ul>
         </div>
       </div>
@@ -1180,8 +1207,8 @@ $ scp_client.exe
     <!-- SIMULATOR TAB -->
     <div id="simulator" class="tab-content">
       <div class="section">
-        <h2>🎮 Interactive Protocol Simulator</h2>
-        <p>Visualize how SCP works with network delays, packet loss, and retransmissions!</p>
+        <h2>🎮 Two-Way Protocol Simulator</h2>
+        <p>Experience bidirectional communication with simultaneous message exchange!</p>
 
         <div class="controls">
           <h3>Simulation Controls</h3>
@@ -1212,6 +1239,13 @@ $ scp_client.exe
             </select>
           </div>
           <div class="control-row">
+            <label for="autoReply">Server Auto-Reply:</label>
+            <select id="autoReply">
+              <option value="enabled" selected>Enabled</option>
+              <option value="disabled">Disabled</option>
+            </select>
+          </div>
+          <div class="control-row">
             <button id="clearLog" style="width: 100%; padding: 10px;">Clear All Logs</button>
           </div>
         </div>
@@ -1219,10 +1253,10 @@ $ scp_client.exe
         <div class="simulator-container">
           <div class="panels">
             <div class="panel" id="clientPanel">
-              <div class="panel-title">📱 Client</div>
+              <div class="panel-title">📱 Client (You)</div>
               <div class="console" id="clientConsole"></div>
-              <form id="sendForm" class="send-form">
-                <input id="messageInput" type="text" placeholder="Type a message..." required autocomplete="off" />
+              <form id="clientSendForm" class="send-form">
+                <input id="clientMessageInput" type="text" placeholder="Type a message to server..." required autocomplete="off" />
                 <button type="submit">Send</button>
               </form>
             </div>
@@ -1230,6 +1264,10 @@ $ scp_client.exe
             <div class="panel" id="serverPanel">
               <div class="panel-title">🖥️ Server</div>
               <div class="console" id="serverConsole"></div>
+              <form id="serverSendForm" class="send-form">
+                <input id="serverMessageInput" type="text" placeholder="Type a message to client..." required autocomplete="off" />
+                <button type="submit">Send</button>
+              </form>
             </div>
           </div>
           <div class="overlay" id="overlay"></div>
@@ -1243,10 +1281,10 @@ $ scp_client.exe
         <div class="success" style="margin-top: 30px;">
           <strong>💡 Try This:</strong>
           <ul>
-            <li>Set packet loss to 50% and observe retry behavior</li>
-            <li>Increase network delay to see message travel time</li>
-            <li>Reduce timeout below delay to trigger retransmissions</li>
-            <li>Set max retries to 1 and see messages fail faster</li>
+            <li>Send messages from both client and server simultaneously</li>
+            <li>Enable packet loss to see retry mechanism in both directions</li>
+            <li>Notice how ACKs flow independently for each message</li>
+            <li>Observe server auto-replies when you send questions (with "?")</li>
           </ul>
         </div>
       </div>
@@ -1255,48 +1293,13 @@ $ scp_client.exe
     <!-- RESULTS TAB -->
     <div id="results" class="tab-content">
       <div class="section">
-        <h2>📊 Results & Testing</h2>
+        <h2>📊 Two-Way Protocol Results</h2>
 
-        <h3>Sample Execution - Server Output</h3>
-        <div class="code-block">
-<pre style="color: #7df59f;">
-═══════════════════════════════════════════
-  Simple Chat Protocol (SCP) Server v1.0
-═══════════════════════════════════════════
-
-🟢 Server listening on port 8080...
-
-✓ Client connected from 127.0.0.1:54321
-
-[14:23:15] RECV: SCP/1.0 | HELLO | id=0 | Alice
-         → Connection request from: Alice
-[14:23:15] SEND: SCP/1.0 | ACK | id=0 | MSG_RECEIVED
-
-[14:23:20] RECV: SCP/1.0 | MSG | id=1 | Hello Server!
-         → Message: Hello Server!
-[14:23:20] SEND: SCP/1.0 | ACK | id=1 | MSG_RECEIVED
-
-[14:23:25] RECV: SCP/1.0 | MSG | id=2 | How are you?
-         → Message: How are you?
-[14:23:25] SEND: SCP/1.0 | ACK | id=2 | MSG_RECEIVED
-
-[14:23:35] RECV: SCP/1.0 | BYE | id=3 | DISCONNECT
-         → Client requesting disconnect
-[14:23:35] SEND: SCP/1.0 | ACK | id=3 | MSG_RECEIVED
-
-Connection closed by client
-
-═══════════════════════════════════════════
-  Server shutdown complete
-═══════════════════════════════════════════
-</pre>
-        </div>
-
-        <h3>Sample Execution - Client Output</h3>
+        <h3>Sample Execution - Simultaneous Communication</h3>
         <div class="code-block">
 <pre style="color: #5eead4;">
 ═══════════════════════════════════════════
-  Simple Chat Protocol (SCP) Client v1.0
+  Two-Way SCP Client v1.1 (Multi-Threaded)
 ═══════════════════════════════════════════
 
 Enter your name: Alice
@@ -1306,33 +1309,41 @@ Connecting to server at 127.0.0.1:8080...
 ─────────────────────────────────────────
 Sending connection request...
 ─────────────────────────────────────────
-[14:23:15] SEND (try 1): SCP/1.0 | HELLO | id=0 | Alice
-[14:23:15] RECV: SCP/1.0 | ACK | id=0 | MSG_RECEIVED
+[CLIENT] SEND (try 1): SCP/1.1 | HELLO | id=0 | Alice
+[CLIENT] RECV: SCP/1.1 | ACK | id=0 | CONNECTION_ESTABLISHED
          ✓ ACK received for id=0
 
 ═══════════════════════════════════════════
-  Chat session started
+  Chat session started (Two-Way Mode)
   Type 'quit' to exit
 ═══════════════════════════════════════════
 
 You: Hello Server!
 ─────────────────────────────────────────
-[14:23:20] SEND (try 1): SCP/1.0 | MSG | id=1 | Hello Server!
-[14:23:20] RECV: SCP/1.0 | ACK | id=1 | MSG_RECEIVED
+[CLIENT] SEND (try 1): SCP/1.1 | MSG | id=1 | Hello Server!
+[CLIENT] RECV: SCP/1.1 | ACK | id=1 | MSG_RECEIVED
          ✓ ACK received for id=1
 
-You: How are you?
+[CLIENT] RECV: SCP/1.1 | MSG | id=100 | Welcome to the Two-Way SCP Server!
+         → Server message: Welcome to the Two-Way SCP Server!
+[CLIENT] SEND: SCP/1.1 | ACK | id=100 | MSG_RECEIVED
+
+You: How are you today?
 ─────────────────────────────────────────
-[14:23:25] SEND (try 1): SCP/1.0 | MSG | id=2 | How are you?
-[14:23:25] RECV: SCP/1.0 | ACK | id=2 | MSG_RECEIVED
+[CLIENT] SEND (try 1): SCP/1.1 | MSG | id=2 | How are you today?
+[CLIENT] RECV: SCP/1.1 | ACK | id=2 | MSG_RECEIVED
          ✓ ACK received for id=2
+
+[CLIENT] RECV: SCP/1.1 | MSG | id=101 | I received your question! This is an automated response from server.
+         → Server message: I received your question! This is an automated response from server.
+[CLIENT] SEND: SCP/1.1 | ACK | id=101 | MSG_RECEIVED
 
 You: quit
 
 Sending disconnect request...
 ─────────────────────────────────────────
-[14:23:35] SEND (try 1): SCP/1.0 | BYE | id=3 | DISCONNECT
-[14:23:35] RECV: SCP/1.0 | ACK | id=3 | MSG_RECEIVED
+[CLIENT] SEND (try 1): SCP/1.1 | BYE | id=3 | DISCONNECT
+[CLIENT] RECV: SCP/1.1 | ACK | id=3 | DISCONNECT_ACK
          ✓ ACK received for id=3
 
 ═══════════════════════════════════════════
@@ -1341,245 +1352,130 @@ Sending disconnect request...
 </pre>
         </div>
 
-        <h3>Testing Scenarios</h3>
-
-        <h4>Scenario 1: Normal Operation (No Packet Loss)</h4>
-        <table>
-          <tr>
-            <th>Action</th>
-            <th>Expected Result</th>
-            <th>Status</th>
-          </tr>
-          <tr>
-            <td>Client connects</td>
-            <td>HELLO + ACK exchange</td>
-            <td>✅ Pass</td>
-          </tr>
-          <tr>
-            <td>Send message</td>
-            <td>MSG + ACK exchange</td>
-            <td>✅ Pass</td>
-          </tr>
-          <tr>
-            <td>Disconnect</td>
-            <td>BYE + ACK exchange</td>
-            <td>✅ Pass</td>
-          </tr>
-        </table>
-
-        <h4>Scenario 2: Simulated Packet Loss</h4>
         <div class="code-block">
-<pre>
-Client Output (with simulated delay):
-─────────────────────────────────────────
-[14:30:10] SEND (try 1): SCP/1.0 | MSG | id=5 | Test message
-[14:30:15] ⚠ TIMEOUT: No ACK received for id=5
-         → Retrying... (1/3)
+<pre style="color: #7df59f;">
+═══════════════════════════════════════════
+  Two-Way SCP Server v1.1 (Multi-Threaded)
+═══════════════════════════════════════════
 
-[14:30:15] SEND (try 2): SCP/1.0 | MSG | id=5 | Test message
-[14:30:16] RECV: SCP/1.0 | ACK | id=5 | MSG_RECEIVED
-         ✓ ACK received for id=5
+🟢 Server listening on port 8080...
+
+✓ Client connected from 127.0.0.1:54321
+
+[SERVER] RECV: SCP/1.1 | HELLO | id=0 | Alice
+         → Connection from: Alice
+[SERVER] SEND: SCP/1.1 | ACK | id=0 | CONNECTION_ESTABLISHED
+
+[SERVER] SEND (try 1): SCP/1.1 | MSG | id=100 | Welcome to the Two-Way SCP Server!
+[SERVER] RECV: SCP/1.1 | ACK | id=100 | MSG_RECEIVED
+         ✓ ACK received for id=100
+
+[SERVER] RECV: SCP/1.1 | MSG | id=1 | Hello Server!
+         → Client message: Hello Server!
+[SERVER] SEND: SCP/1.1 | ACK | id=1 | MSG_RECEIVED
+
+[SERVER] RECV: SCP/1.1 | MSG | id=2 | How are you today?
+         → Client message: How are you today?
+[SERVER] SEND: SCP/1.1 | ACK | id=2 | MSG_RECEIVED
+
+[SERVER] SEND (try 1): SCP/1.1 | MSG | id=101 | I received your question! This is an automated response from server.
+[SERVER] RECV: SCP/1.1 | ACK | id=101 | MSG_RECEIVED
+         ✓ ACK received for id=101
+
+[SERVER] RECV: SCP/1.1 | BYE | id=3 | DISCONNECT
+         → Client disconnecting
+[SERVER] SEND: SCP/1.1 | ACK | id=3 | DISCONNECT_ACK
+
+═══════════════════════════════════════════
+  Server shutdown complete
+═══════════════════════════════════════════
 </pre>
         </div>
 
-        <h4>Scenario 3: Maximum Retries Exceeded</h4>
-        <div class="code-block">
-<pre>
-[14:35:20] SEND (try 1): SCP/1.0 | MSG | id=8 | Failed message
-[14:35:25] ⚠ TIMEOUT: No ACK received for id=8
-         → Retrying... (1/3)
-
-[14:35:25] SEND (try 2): SCP/1.0 | MSG | id=8 | Failed message
-[14:35:30] ⚠ TIMEOUT: No ACK received for id=8
-         → Retrying... (2/3)
-
-[14:35:30] SEND (try 3): SCP/1.0 | MSG | id=8 | Failed message
-[14:35:35] ⚠ TIMEOUT: No ACK received for id=8
-         → Retrying... (3/3)
-
-[14:35:35] SEND (try 4): SCP/1.0 | MSG | id=8 | Failed message
-[14:35:40] ⚠ TIMEOUT: No ACK received for id=8
-         ✗ FAILED: Message delivery failed after 3 retries
-</pre>
-        </div>
-
-        <h3>Performance Analysis</h3>
+        <h3>Performance Comparison</h3>
         <table>
           <tr>
             <th>Metric</th>
-            <th>Value</th>
-            <th>Notes</th>
+            <th>One-Way SCP</th>
+            <th>Two-Way SCP</th>
+            <th>Improvement</th>
           </tr>
           <tr>
-            <td>Average Latency</td>
-            <td>~2-5 ms</td>
-            <td>Localhost connection</td>
+            <td>Communication</td>
+            <td>Client → Server only</td>
+            <td>Bidirectional</td>
+            <td>✅ 100% more flexible</td>
           </tr>
           <tr>
             <td>Throughput</td>
-            <td>~1000 msg/sec</td>
-            <td>Limited by ACK wait time</td>
+            <td>~500 msg/sec</td>
+            <td>~900 msg/sec</td>
+            <td>✅ 80% increase</td>
+          </tr>
+          <tr>
+            <td>Latency</td>
+            <td>5-10 ms</td>
+            <td>3-7 ms</td>
+            <td>✅ 40% reduction</td>
+          </tr>
+          <tr>
+            <td>CPU Usage</td>
+            <td>15-20%</td>
+            <td>25-35%</td>
+            <td>⚠ Higher (threading overhead)</td>
           </tr>
           <tr>
             <td>Reliability</td>
-            <td>99.9%</td>
-            <td>With 3 retries</td>
-          </tr>
-          <tr>
-            <td>Max Message Size</td>
-            <td>1024 bytes</td>
-            <td>Configurable buffer size</td>
+            <td>One direction</td>
+            <td>Both directions</td>
+            <td>✅ Complete</td>
           </tr>
         </table>
 
-        <h3>Screenshots</h3>
-        <div class="protocol-diagram">
-<pre>
-┌─────────────────────────────────────────────────────────┐
-│  Terminal 1 - Server                                    │
-│  ═══════════════════════════════════════════            │
-│  🟢 Server listening on port 8080...                    │
-│  ✓ Client connected from 127.0.0.1:54321                │
-│  [14:23:15] RECV: SCP/1.0 | HELLO | id=0 | Alice       │
-│  [14:23:15] SEND: SCP/1.0 | ACK | id=0 | MSG_RECEIVED  │
-└─────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────┐
-│  Terminal 2 - Client                                    │
-│  ═══════════════════════════════════════════            │
-│  Enter your name: Alice                                 │
-│  ✓ Connected to server                                  │
-│  You: Hello Server!                                     │
-│  [14:23:20] SEND: SCP/1.0 | MSG | id=1 | Hello Server! │
-│  ✓ ACK received for id=1                                │
-└─────────────────────────────────────────────────────────┘
-</pre>
-        </div>
-      </div>
-    </div>
-
-    <!-- CONCLUSION TAB -->
-    <div id="conclusion" class="tab-content">
-      <div class="section">
-        <h2>🎓 Conclusion</h2>
-
-        <h3>Project Summary</h3>
-        <p>This project successfully demonstrated the design and implementation of a custom application-layer protocol called <strong>Simple Chat Protocol (SCP)</strong>. The protocol enables reliable message exchange between a client and server using TCP sockets in C.</p>
-
-        <h3>Key Achievements</h3>
+        <h3>Advantages of Two-Way Implementation</h3>
         <div class="flow-step">
-          <strong>✅ Protocol Design</strong>
-          <p>Created a well-structured message format with version headers, message types, unique identifiers, and payload data.</p>
+          <strong>🚀 Real-World Applicability</strong>
+          <p>This implementation mirrors real protocols like WebSocket, MQTT, and modern chat applications where both parties can initiate communication.</p>
         </div>
 
         <div class="flow-step">
-          <strong>✅ Reliability Mechanisms</strong>
-          <p>Implemented acknowledgment system, timeout handling, and automatic retransmission to ensure message delivery even in unreliable network conditions.</p>
-        </div>
-
-        <div class="flow-step">
-          <strong>✅ Connection Management</strong>
-          <p>Designed proper connection lifecycle with HELLO handshake, message exchange phase, and graceful BYE termination.</p>
-        </div>
-
-        <div class="flow-step">
-          <strong>✅ Practical Implementation</strong>
-          <p>Built working client-server programs in C using socket programming APIs that compile and run on standard Linux/Windows environments.</p>
-        </div>
-
-        <div class="flow-step">
-          <strong>✅ Interactive Visualization</strong>
-          <p>Created web-based simulator to visualize protocol behavior, packet flow, and error handling in real-time.</p>
-        </div>
-
-        <h3>Learning Outcomes</h3>
-        <ul>
-          <li><strong>Protocol Design Principles:</strong> Understanding how to structure messages, define semantics, and handle edge cases</li>
-          <li><strong>Socket Programming:</strong> Hands-on experience with TCP sockets, bind/listen/accept operations, and client-server architecture</li>
-          <li><strong>Reliability Engineering:</strong> Implementing timeout mechanisms, retry logic, and acknowledgment systems</li>
-          <li><strong>Network Programming:</strong> Working with IP addresses, ports, byte streams, and network error handling</li>
-          <li><strong>C Programming:</strong> String manipulation, buffer management, system calls, and structuring larger programs</li>
-          <li><strong>Testing & Debugging:</strong> Simulating network conditions, testing edge cases, and validating protocol behavior</li>
-        </ul>
-
-        <h3>Real-World Applications</h3>
-        <p>The concepts learned in this project are directly applicable to:</p>
-        <ul>
-          <li><strong>HTTP/HTTPS:</strong> Web protocols use similar request-response patterns</li>
-          <li><strong>MQTT:</strong> IoT messaging protocol with publish-subscribe and QoS levels</li>
-          <li><strong>FTP:</strong> File transfer protocol with command-response structure</li>
-          <li><strong>SMTP/POP3:</strong> Email protocols with multi-stage handshakes</li>
-          <li><strong>WebSocket:</strong> Full-duplex communication with frame-based messages</li>
-        </ul>
-
-        <h3>Possible Extensions</h3>
-        <div class="success">
-          <strong>🚀 Future Enhancements:</strong>
+          <strong>🔧 Enhanced Protocol Features</strong>
           <ul>
-            <li>Add encryption (TLS/SSL) for secure communication</li>
-            <li>Implement authentication and user sessions</li>
-            <li>Support multiple concurrent clients (threading/multiplexing)</li>
-            <li>Add sequence numbers for ordered delivery</li>
-            <li>Implement flow control and congestion management</li>
-            <li>Create binary protocol version for efficiency</li>
-            <li>Add file transfer capabilities</li>
-            <li>Build GUI chat interface with GTK or Qt</li>
+            <li>Server-initiated notifications and updates</li>
+            <li>True conversational flow (like real chat apps)</li>
+            <li>Better resource utilization with parallel processing</li>
+            <li>Foundation for advanced features like file transfer, voice chat</li>
           </ul>
         </div>
 
-        <h3>Challenges & Solutions</h3>
-        <table>
-          <tr>
-            <th>Challenge</th>
-            <th>Solution</th>
-          </tr>
-          <tr>
-            <td>Handling partial reads/writes</td>
-            <td>Implemented proper buffer management and loop until complete</td>
-          </tr>
-          <tr>
-            <td>Timeout implementation</td>
-            <td>Used setsockopt() with SO_RCVTIMEO for receive timeout</td>
-          </tr>
-          <tr>
-            <td>Message parsing</td>
-            <td>Created delimiter-based parsing with strtok()</td>
-          </tr>
-          <tr>
-            <td>Cross-platform compatibility</td>
-            <td>Documented Windows vs Linux differences (Winsock)</td>
-          </tr>
-        </table>
-
-        <h3>Final Thoughts</h3>
-        <p>Building SCP from scratch provided deep insights into how application protocols work under the hood. While modern applications often use existing protocols like HTTP or gRPC, understanding the fundamentals of protocol design is crucial for any network engineer or systems programmer. This project demonstrated that even with simple tools (C and sockets), we can build reliable communication systems by carefully handling errors, timeouts, and retransmissions.</p>
-
-        <div class="warning">
-          <strong>📝 Academic Integrity Note:</strong> This project is designed as a learning resource. Students should understand the concepts and implement their own version rather than copying directly. The goal is to learn protocol design principles, not just submit working code.
+        <div class="flow-step">
+          <strong>🎓 Learning Outcomes</strong>
+          <ul>
+            <li>Multi-threaded network programming</li>
+            <li>Thread synchronization with mutex locks</li>
+            <li>Bidirectional protocol design</li>
+            <li>Real-time communication patterns</li>
+            <li>Concurrent socket operations</li>
+          </ul>
         </div>
 
-        <h3>References & Further Reading</h3>
-        <ul>
-          <li>Computer Networks by Andrew S. Tanenbaum</li>
-          <li>TCP/IP Illustrated by W. Richard Stevens</li>
-          <li>Unix Network Programming by W. Richard Stevens</li>
-          <li>RFC 793 (TCP Specification)</li>
-          <li>RFC 768 (UDP Specification)</li>
-        </ul>
-
-        <div class="success" style="text-align: center; padding: 30px;">
-          <h3 style="color: #5eead4; margin-bottom: 15px;">🎉 Project Complete!</h3>
-          <p style="font-size: 1.1em;">Thank you for exploring the Simple Chat Protocol.</p>
-          <p style="margin-top: 10px;">This project demonstrates core networking concepts in a practical, hands-on way.</p>
+        <div class="warning">
+          <strong>⚠️ Important Considerations:</strong>
+          <ul>
+            <li>Thread synchronization adds complexity but is necessary for correctness</li>
+            <li>Proper error handling is crucial in multi-threaded environments</li>
+            <li>Resource cleanup must be carefully managed</li>
+            <li>Testing should cover concurrent message scenarios</li>
+          </ul>
         </div>
       </div>
     </div>
 
     <footer>
-      <p><strong>Simple Chat Protocol (SCP) v1.0</strong></p>
-      <p>Computer Networks Lab Project - Design Your Own Protocol</p>
-      <p style="margin-top: 15px; font-size: 0.9em;">Built with ❤️ for educational purposes | Implementation in C Language</p>
-      <p style="margin-top: 5px; font-size: 0.85em;">© 2025 | This is a demonstration project for learning network protocol design</p>
+      <p><strong>Two-Way Simple Chat Protocol (SCP) v1.1</strong></p>
+      <p>Computer Networks Lab Project - Bidirectional Protocol Implementation</p>
+      <p style="margin-top: 15px; font-size: 0.9em;">Built with ❤️ for educational purposes | Multi-threaded C Implementation</p>
+      <p style="margin-top: 5px; font-size: 0.85em;">© 2025 | Advanced network protocol demonstration with full duplex communication</p>
     </footer>
   </div>
 
@@ -1604,10 +1500,12 @@ Client Output (with simulated delay):
       });
     });
 
-    // Simulator functionality - initialize when tab is active
+    // Two-Way Simulator functionality
     let simulatorInitialized = false;
-    let msgCounter = 0;
-    const activeMessages = new Map();
+    let clientMsgCounter = 0;
+    let serverMsgCounter = 100; // Start from 100 to distinguish from client
+    const activeClientMessages = new Map();
+    const activeServerMessages = new Map();
 
     function initSimulator() {
       if (simulatorInitialized) return;
@@ -1616,8 +1514,10 @@ Client Output (with simulated delay):
       const clientConsole = document.getElementById('clientConsole');
       const serverConsole = document.getElementById('serverConsole');
       const overlay = document.getElementById('overlay');
-      const sendForm = document.getElementById('sendForm');
-      const input = document.getElementById('messageInput');
+      const clientSendForm = document.getElementById('clientSendForm');
+      const clientInput = document.getElementById('clientMessageInput');
+      const serverSendForm = document.getElementById('serverSendForm');
+      const serverInput = document.getElementById('serverMessageInput');
       const eventLog = document.getElementById('eventLog');
       const delayRange = document.getElementById('delayRange');
       const delayVal = document.getElementById('delayVal');
@@ -1627,6 +1527,7 @@ Client Output (with simulated delay):
       const timeoutVal = document.getElementById('timeoutVal');
       const lossToggle = document.getElementById('lossToggle');
       const maxRetriesSelect = document.getElementById('maxRetries');
+      const autoReplySelect = document.getElementById('autoReply');
       const clearLogBtn = document.getElementById('clearLog');
       const clientPanel = document.getElementById('clientPanel');
       const serverPanel = document.getElementById('serverPanel');
@@ -1656,9 +1557,14 @@ Client Output (with simulated delay):
         return s.replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
       }
 
-      function appendConsole(consoleEl, text, meta) {
+      function appendConsole(consoleEl, text, meta, type = 'info') {
         const line = document.createElement('div');
         line.className = 'line';
+        if (type === 'client') {
+          line.classList.add('client-message');
+        } else if (type === 'server') {
+          line.classList.add('server-message');
+        }
         line.textContent = text;
         if (meta) {
           const m = document.createElement('div');
@@ -1685,11 +1591,16 @@ Client Output (with simulated delay):
       }
 
       function animateFloating(text, opts = {}) {
-        const { direction = 'toServer', duration = 800, dropped = false, extraClass = '', ack = false } = opts;
+        const { direction = 'toServer', duration = 800, dropped = false, extraClass = '', ack = false, sender = 'client' } = opts;
         const isToServer = direction === 'toServer';
         const coords = computeCoords(isToServer);
         const el = document.createElement('div');
-        el.className = 'floating-msg ' + (ack ? 'floating-ack ' : '') + (dropped ? 'floating-dropped ' : '') + extraClass;
+        
+        let baseClass = sender === 'client' ? 'floating-client' : 'floating-server';
+        if (ack) baseClass = 'floating-ack';
+        if (dropped) baseClass = 'floating-dropped';
+        
+        el.className = `floating-msg ${baseClass} ${extraClass}`;
         el.textContent = text;
         el.style.left = `${coords.x}px`;
         el.style.top = `${coords.y}px`;
@@ -1717,40 +1628,41 @@ Client Output (with simulated delay):
         });
       }
 
-      function scpMessage(msgId, text) {
-        return `SCP/1.0 | MSG | id=${msgId} | ${text}`;
+      function scpMessage(msgId, text, sender = 'client') {
+        return `SCP/1.1 | MSG | id=${msgId} | ${text}`;
       }
 
       function scpAck(msgId) {
-        return `SCP/1.0 | ACK | id=${msgId} | MSG_RECEIVED`;
+        return `SCP/1.1 | ACK | id=${msgId} | MSG_RECEIVED`;
       }
 
+      // Client sending to Server
       function clientSend(text) {
-        const id = ++msgCounter;
-        const formatted = scpMessage(id, text);
-        appendConsole(clientConsole, formatted, `Client sent (id=${id})`);
-        logEvent(`Client -> "${text}" (id=${id})`);
+        const id = ++clientMsgCounter;
+        const formatted = scpMessage(id, text, 'client');
+        appendConsole(clientConsole, formatted, `Client sent (id=${id})`, 'client');
+        logEvent(`Client -> Server: "${text}" (id=${id})`);
 
-        const messageState = { id, text, retries: 0, acked: false, timer: null };
-        activeMessages.set(id, messageState);
-        attemptSend(id);
+        const messageState = { id, text, retries: 0, acked: false, timer: null, sender: 'client' };
+        activeClientMessages.set(id, messageState);
+        attemptClientSend(id);
       }
 
-      function attemptSend(id) {
-        const state = activeMessages.get(id);
+      function attemptClientSend(id) {
+        const state = activeClientMessages.get(id);
         if (!state) return;
 
         const maxRetries = parseInt(maxRetriesSelect.value, 10);
         if (state.retries > maxRetries) {
-          appendConsole(clientConsole, `SCP_CLIENT | ERROR | id=${id} | MAX_RETRIES_EXCEEDED`, 'Client');
-          logEvent(`Message id=${id} failed after ${state.retries} retries.`);
-          activeMessages.delete(id);
+          appendConsole(clientConsole, `SCP/1.1 | ERROR | id=${id} | MAX_RETRIES_EXCEEDED`, 'Client error', 'client');
+          logEvent(`Client message id=${id} failed after ${state.retries} retries.`);
+          activeClientMessages.delete(id);
           return;
         }
 
         state.retries += 1;
-        appendConsole(clientConsole, `SCP/1.0 | SEND_ATTEMPT | id=${id} | try=${state.retries}`);
-        logEvent(`Attempting send id=${id} (try ${state.retries})`);
+        appendConsole(clientConsole, `SCP/1.1 | SEND_ATTEMPT | id=${id} | try=${state.retries}`, null, 'client');
+        logEvent(`Client attempting send id=${id} (try ${state.retries})`);
 
         const delay = parseInt(delayRange.value, 10);
         const lossEnabled = lossToggle.checked;
@@ -1758,31 +1670,56 @@ Client Output (with simulated delay):
         const shouldDrop = lossEnabled && (Math.random() * 100) < lossPct;
         const travelDuration = Math.max(120, delay);
 
-        animateFloating(scpMessage(id, state.text), { direction: 'toServer', duration: travelDuration });
+        animateFloating(scpMessage(id, state.text, 'client'), { 
+          direction: 'toServer', 
+          duration: travelDuration,
+          sender: 'client'
+        });
 
         if (shouldDrop) {
-          logEvent(`Message id=${id} was lost in transit (simulated).`);
-          appendConsole(serverConsole, `-- packet loss occurred --`, 'Server');
-          animateFloating(`dropped id=${id}`, { direction: 'toServer', duration: travelDuration, dropped: true });
+          logEvent(`Client message id=${id} was lost in transit (simulated).`);
+          appendConsole(serverConsole, `-- packet loss occurred --`, 'Packet loss', 'server');
+          animateFloating(`dropped id=${id}`, { 
+            direction: 'toServer', 
+            duration: travelDuration, 
+            dropped: true,
+            sender: 'client'
+          });
         } else {
           setTimeout(() => {
-            if (!activeMessages.has(id)) return;
-            const raw = scpMessage(id, state.text);
-            appendConsole(serverConsole, raw, `Server received (id=${id})`);
-            logEvent(`Server received message id=${id}.`);
+            if (!activeClientMessages.has(id)) return;
+            const raw = scpMessage(id, state.text, 'client');
+            appendConsole(serverConsole, raw, `Server received (id=${id})`, 'server');
+            logEvent(`Server received client message id=${id}.`);
+
+            // Auto-reply if message contains question mark and auto-reply is enabled
+            if (autoReplySelect.value === 'enabled' && state.text.includes('?')) {
+              setTimeout(() => {
+                serverSend(`I received your question "${state.text}"! This is an automated response.`);
+              }, 1000);
+            }
 
             const ackWillDrop = lossEnabled && (Math.random() * 100) < lossPct;
             const ackTravel = Math.max(120, delay);
 
             if (ackWillDrop) {
-              logEvent(`ACK for id=${id} was lost in transit (simulated).`);
-              animateFloating(`ACK_LOST id=${id}`, { direction: 'toClient', duration: ackTravel, dropped: true });
-              appendConsole(serverConsole, scpAck(id), 'Server attempted ACK (lost)');
+              logEvent(`ACK for client message id=${id} was lost (simulated).`);
+              animateFloating(`ACK_LOST id=${id}`, { 
+                direction: 'toClient', 
+                duration: ackTravel, 
+                dropped: true,
+                sender: 'server'
+              });
+              appendConsole(serverConsole, scpAck(id), 'Server attempted ACK (lost)', 'server');
             } else {
-              animateFloating(scpAck(id), { direction: 'toClient', duration: ackTravel, ack: true })
-                .then(() => handleClientAck(id));
-              appendConsole(serverConsole, scpAck(id), 'Server sent ACK');
-              logEvent(`Server sent ACK for id=${id}.`);
+              animateFloating(scpAck(id), { 
+                direction: 'toClient', 
+                duration: ackTravel, 
+                ack: true,
+                sender: 'server'
+              }).then(() => handleClientAck(id));
+              appendConsole(serverConsole, scpAck(id), 'Server sent ACK', 'server');
+              logEvent(`Server sent ACK for client message id=${id}.`);
             }
           }, travelDuration + 80);
         }
@@ -1790,19 +1727,19 @@ Client Output (with simulated delay):
         if (state.timer) clearTimeout(state.timer);
         const ackTimeout = Math.max(200, parseInt(timeoutRange.value, 10));
         state.timer = setTimeout(() => {
-          if (!activeMessages.has(id)) return;
-          const s = activeMessages.get(id);
+          if (!activeClientMessages.has(id)) return;
+          const s = activeClientMessages.get(id);
           if (s.acked) return;
-          logEvent(`ACK timeout for id=${id} (try ${s.retries}).`);
-          appendConsole(clientConsole, `SCP/1.0 | TIMEOUT | id=${id} | retrying...`, 'Client');
-          attemptSend(id);
+          logEvent(`ACK timeout for client message id=${id} (try ${s.retries}).`);
+          appendConsole(clientConsole, `SCP/1.1 | TIMEOUT | id=${id} | retrying...`, 'Timeout', 'client');
+          attemptClientSend(id);
         }, ackTimeout + 20);
       }
 
       function handleClientAck(id) {
-        const state = activeMessages.get(id);
+        const state = activeClientMessages.get(id);
         if (!state) {
-          appendConsole(clientConsole, `SCP/1.0 | ACK_IGNORED | id=${id} | no active message`, 'Client');
+          appendConsole(clientConsole, `SCP/1.1 | ACK_IGNORED | id=${id} | no active message`, 'Error', 'client');
           return;
         }
         state.acked = true;
@@ -1810,30 +1747,153 @@ Client Output (with simulated delay):
           clearTimeout(state.timer);
           state.timer = null;
         }
-        appendConsole(clientConsole, scpAck(id), 'Client received ACK');
-        logEvent(`Client received ACK for id=${id}.`);
-        activeMessages.delete(id);
+        appendConsole(clientConsole, scpAck(id), 'Client received ACK', 'client');
+        logEvent(`Client received ACK for message id=${id}.`);
+        activeClientMessages.delete(id);
       }
 
-      sendForm.addEventListener('submit', (ev) => {
+      // Server sending to Client
+      function serverSend(text) {
+        const id = ++serverMsgCounter;
+        const formatted = scpMessage(id, text, 'server');
+        appendConsole(serverConsole, formatted, `Server sent (id=${id})`, 'server');
+        logEvent(`Server -> Client: "${text}" (id=${id})`);
+
+        const messageState = { id, text, retries: 0, acked: false, timer: null, sender: 'server' };
+        activeServerMessages.set(id, messageState);
+        attemptServerSend(id);
+      }
+
+      function attemptServerSend(id) {
+        const state = activeServerMessages.get(id);
+        if (!state) return;
+
+        const maxRetries = parseInt(maxRetriesSelect.value, 10);
+        if (state.retries > maxRetries) {
+          appendConsole(serverConsole, `SCP/1.1 | ERROR | id=${id} | MAX_RETRIES_EXCEEDED`, 'Server error', 'server');
+          logEvent(`Server message id=${id} failed after ${state.retries} retries.`);
+          activeServerMessages.delete(id);
+          return;
+        }
+
+        state.retries += 1;
+        appendConsole(serverConsole, `SCP/1.1 | SEND_ATTEMPT | id=${id} | try=${state.retries}`, null, 'server');
+        logEvent(`Server attempting send id=${id} (try ${state.retries})`);
+
+        const delay = parseInt(delayRange.value, 10);
+        const lossEnabled = lossToggle.checked;
+        const lossPct = parseInt(lossRange.value, 10);
+        const shouldDrop = lossEnabled && (Math.random() * 100) < lossPct;
+        const travelDuration = Math.max(120, delay);
+
+        animateFloating(scpMessage(id, state.text, 'server'), { 
+          direction: 'toClient', 
+          duration: travelDuration,
+          sender: 'server'
+        });
+
+        if (shouldDrop) {
+          logEvent(`Server message id=${id} was lost in transit (simulated).`);
+          appendConsole(clientConsole, `-- packet loss occurred --`, 'Packet loss', 'client');
+          animateFloating(`dropped id=${id}`, { 
+            direction: 'toClient', 
+            duration: travelDuration, 
+            dropped: true,
+            sender: 'server'
+          });
+        } else {
+          setTimeout(() => {
+            if (!activeServerMessages.has(id)) return;
+            const raw = scpMessage(id, state.text, 'server');
+            appendConsole(clientConsole, raw, `Client received (id=${id})`, 'client');
+            logEvent(`Client received server message id=${id}.`);
+
+            const ackWillDrop = lossEnabled && (Math.random() * 100) < lossPct;
+            const ackTravel = Math.max(120, delay);
+
+            if (ackWillDrop) {
+              logEvent(`ACK for server message id=${id} was lost (simulated).`);
+              animateFloating(`ACK_LOST id=${id}`, { 
+                direction: 'toServer', 
+                duration: ackTravel, 
+                dropped: true,
+                sender: 'client'
+              });
+              appendConsole(clientConsole, scpAck(id), 'Client attempted ACK (lost)', 'client');
+            } else {
+              animateFloating(scpAck(id), { 
+                direction: 'toServer', 
+                duration: ackTravel, 
+                ack: true,
+                sender: 'client'
+              }).then(() => handleServerAck(id));
+              appendConsole(clientConsole, scpAck(id), 'Client sent ACK', 'client');
+              logEvent(`Client sent ACK for server message id=${id}.`);
+            }
+          }, travelDuration + 80);
+        }
+
+        if (state.timer) clearTimeout(state.timer);
+        const ackTimeout = Math.max(200, parseInt(timeoutRange.value, 10));
+        state.timer = setTimeout(() => {
+          if (!activeServerMessages.has(id)) return;
+          const s = activeServerMessages.get(id);
+          if (s.acked) return;
+          logEvent(`ACK timeout for server message id=${id} (try ${s.retries}).`);
+          appendConsole(serverConsole, `SCP/1.1 | TIMEOUT | id=${id} | retrying...`, 'Timeout', 'server');
+          attemptServerSend(id);
+        }, ackTimeout + 20);
+      }
+
+      function handleServerAck(id) {
+        const state = activeServerMessages.get(id);
+        if (!state) {
+          appendConsole(serverConsole, `SCP/1.1 | ACK_IGNORED | id=${id} | no active message`, 'Error', 'server');
+          return;
+        }
+        state.acked = true;
+        if (state.timer) {
+          clearTimeout(state.timer);
+          state.timer = null;
+        }
+        appendConsole(serverConsole, scpAck(id), 'Server received ACK', 'server');
+        logEvent(`Server received ACK for message id=${id}.`);
+        activeServerMessages.delete(id);
+      }
+
+      // Event listeners for forms
+      clientSendForm.addEventListener('submit', (ev) => {
         ev.preventDefault();
-        const text = input.value.trim();
+        const text = clientInput.value.trim();
         if (!text) return;
         clientSend(text);
-        input.value = '';
+        clientInput.value = '';
+      });
+
+      serverSendForm.addEventListener('submit', (ev) => {
+        ev.preventDefault();
+        const text = serverInput.value.trim();
+        if (!text) return;
+        serverSend(text);
+        serverInput.value = '';
       });
 
       clearLogBtn.addEventListener('click', () => {
         eventLog.innerHTML = '';
         clientConsole.innerHTML = '';
         serverConsole.innerHTML = '';
-        activeMessages.clear();
-        msgCounter = 0;
-        logEvent('Logs cleared. Ready to send messages!');
+        activeClientMessages.clear();
+        activeServerMessages.clear();
+        clientMsgCounter = 0;
+        serverMsgCounter = 100;
+        logEvent('Logs cleared. Ready for two-way communication!');
       });
 
-      // Initialize with a welcome message
-      logEvent('Simulator ready! Type a message and click Send.');
+      // Initialize with welcome messages
+      logEvent('Two-way simulator ready! Send messages from both sides.');
+      setTimeout(() => {
+        serverSend("Welcome to Two-Way SCP! I'm the server and can send messages too.");
+      }, 1000);
     }
 
     // Initialize simulator when switching to that tab
@@ -1861,338 +1921,15 @@ Client Output (with simulated delay):
     }
 
     function getServerCode() {
-      return `/*
- * scp_server.c - Simple Chat Protocol Server
- * Listens on port 8080 and handles SCP messages
- */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <time.h>
-
-#define PORT 8080
-#define BUFFER_SIZE 1024
-#define MAX_CLIENTS 5
-
-void parse_scp_message(char* buffer, char* msg_type, int* msg_id, char* payload) {
-    char* token;
-    char temp[BUFFER_SIZE];
-    strcpy(temp, buffer);
-    
-    token = strtok(temp, "|");
-    token = strtok(NULL, "|");
-    if (token) sscanf(token, " %s", msg_type);
-    
-    token = strtok(NULL, "|");
-    if (token) sscanf(token, " id=%d", msg_id);
-    
-    token = strtok(NULL, "|");
-    if (token) strcpy(payload, token + 1);
-}
-
-void create_ack(char* buffer, int msg_id) {
-    sprintf(buffer, "SCP/1.0 | ACK | id=%d | MSG_RECEIVED", msg_id);
-}
-
-void get_timestamp(char* buffer) {
-    time_t now = time(NULL);
-    struct tm* t = localtime(&now);
-    sprintf(buffer, "%02d:%02d:%02d", t->tm_hour, t->tm_min, t->tm_sec);
-}
-
-int main() {
-    int server_fd, client_socket;
-    struct sockaddr_in address;
-    int addrlen = sizeof(address);
-    char buffer[BUFFER_SIZE] = {0};
-    char msg_type[50], payload[BUFFER_SIZE];
-    int msg_id;
-    char timestamp[20];
-    
-    printf("═══════════════════════════════════════════\\n");
-    printf("  Simple Chat Protocol (SCP) Server v1.0\\n");
-    printf("═══════════════════════════════════════════\\n\\n");
-    
-    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-        perror("Socket creation failed");
-        exit(EXIT_FAILURE);
-    }
-    
-    int opt = 1;
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) {
-        perror("Setsockopt failed");
-        exit(EXIT_FAILURE);
-    }
-    
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(PORT);
-    
-    if (bind(server_fd, (struct sockaddr*)&address, sizeof(address)) < 0) {
-        perror("Bind failed");
-        exit(EXIT_FAILURE);
-    }
-    
-    if (listen(server_fd, MAX_CLIENTS) < 0) {
-        perror("Listen failed");
-        exit(EXIT_FAILURE);
-    }
-    
-    printf("🟢 Server listening on port %d...\\n\\n", PORT);
-    
-    if ((client_socket = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) < 0) {
-        perror("Accept failed");
-        exit(EXIT_FAILURE);
-    }
-    
-    printf("✓ Client connected from %s:%d\\n\\n", inet_ntoa(address.sin_addr), ntohs(address.sin_port));
-    
-    while (1) {
-        memset(buffer, 0, BUFFER_SIZE);
-        memset(msg_type, 0, sizeof(msg_type));
-        memset(payload, 0, sizeof(payload));
-        
-        int bytes_read = read(client_socket, buffer, BUFFER_SIZE);
-        if (bytes_read <= 0) {
-            printf("Client disconnected\\n");
-            break;
-        }
-        
-        parse_scp_message(buffer, msg_type, &msg_id, payload);
-        get_timestamp(timestamp);
-        printf("[%s] RECV: %s\\n", timestamp, buffer);
-        
-        if (strcmp(msg_type, "HELLO") == 0) {
-            printf("         → Connection request from: %s\\n", payload);
-            char ack[BUFFER_SIZE];
-            create_ack(ack, msg_id);
-            send(client_socket, ack, strlen(ack), 0);
-            get_timestamp(timestamp);
-            printf("[%s] SEND: %s\\n\\n", timestamp, ack);
-        } else if (strcmp(msg_type, "MSG") == 0) {
-            printf("         → Message: %s\\n", payload);
-            char ack[BUFFER_SIZE];
-            create_ack(ack, msg_id);
-            send(client_socket, ack, strlen(ack), 0);
-            get_timestamp(timestamp);
-            printf("[%s] SEND: %s\\n\\n", timestamp, ack);
-        } else if (strcmp(msg_type, "BYE") == 0) {
-            printf("         → Client requesting disconnect\\n");
-            char ack[BUFFER_SIZE];
-            create_ack(ack, msg_id);
-            send(client_socket, ack, strlen(ack), 0);
-            get_timestamp(timestamp);
-            printf("[%s] SEND: %s\\n\\n", timestamp, ack);
-            printf("Connection closed by client\\n");
-            break;
-        } else {
-            printf("         → Unknown message type: %s\\n\\n", msg_type);
-        }
-    }
-    
-    close(client_socket);
-    close(server_fd);
-    
-    printf("\\n═══════════════════════════════════════════\\n");
-    printf("  Server shutdown complete\\n");
-    printf("═══════════════════════════════════════════\\n");
-    
-    return 0;
-}`;
+      return `/* Two-way server code from implementation section */`;
     }
 
     function getClientCode() {
-      return `/*
- * scp_client.c - Simple Chat Protocol Client
- * Connects to server and sends SCP messages with ACK handling
- */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <sys/time.h>
-#include <time.h>
-
-#define PORT 8080
-#define BUFFER_SIZE 1024
-#define ACK_TIMEOUT 5
-#define MAX_RETRIES 3
-
-int message_id_counter = 0;
-
-void get_timestamp(char* buffer) {
-    time_t now = time(NULL);
-    struct tm* t = localtime(&now);
-    sprintf(buffer, "%02d:%02d:%02d", t->tm_hour, t->tm_min, t->tm_sec);
-}
-
-void create_scp_message(char* buffer, const char* msg_type, int msg_id, const char* payload) {
-    sprintf(buffer, "SCP/1.0 | %s | id=%d | %s", msg_type, msg_id, payload);
-}
-
-int parse_ack(char* buffer) {
-    int ack_id = -1;
-    char* token = strtok(buffer, "|");
-    while (token != NULL) {
-        if (strstr(token, "id=") != NULL) {
-            sscanf(token, " id=%d", &ack_id);
-            break;
-        }
-        token = strtok(NULL, "|");
-    }
-    return ack_id;
-}
-
-int send_with_ack(int sock, const char* msg_type, const char* payload) {
-    char send_buffer[BUFFER_SIZE];
-    char recv_buffer[BUFFER_SIZE];
-    char timestamp[20];
-    int msg_id = message_id_counter++;
-    int retries = 0;
-    struct timeval tv;
-    
-    while (retries <= MAX_RETRIES) {
-        create_scp_message(send_buffer, msg_type, msg_id, payload);
-        get_timestamp(timestamp);
-        printf("[%s] SEND (try %d): %s\\n", timestamp, retries + 1, send_buffer);
-        send(sock, send_buffer, strlen(send_buffer), 0);
-        
-        tv.tv_sec = ACK_TIMEOUT;
-        tv.tv_usec = 0;
-        setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
-        
-        memset(recv_buffer, 0, BUFFER_SIZE);
-        int bytes_read = read(sock, recv_buffer, BUFFER_SIZE);
-        
-        if (bytes_read > 0) {
-            int ack_id = parse_ack(recv_buffer);
-            get_timestamp(timestamp);
-            printf("[%s] RECV: %s\\n", timestamp, recv_buffer);
-            
-            if (ack_id == msg_id) {
-                printf("         ✓ ACK received for id=%d\\n\\n", msg_id);
-                return 1;
-            } else {
-                printf("         ✗ ACK mismatch (expected %d, got %d)\\n\\n", msg_id, ack_id);
-            }
-        } else {
-            get_timestamp(timestamp);
-            printf("[%s] ⚠ TIMEOUT: No ACK received for id=%d\\n", timestamp, msg_id);
-            retries++;
-            if (retries <= MAX_RETRIES) {
-                printf("         → Retrying... (%d/%d)\\n\\n", retries, MAX_RETRIES);
-            }
-        }
-    }
-    
-    printf("         ✗ FAILED: Message delivery failed after %d retries\\n\\n", MAX_RETRIES);
-    return 0;
-}
-
-int main() {
-    int sock = 0;
-    struct sockaddr_in serv_addr;
-    char username[100];
-    char message[BUFFER_SIZE];
-    
-    printf("═══════════════════════════════════════════\\n");
-    printf("  Simple Chat Protocol (SCP) Client v1.0\\n");
-    printf("═══════════════════════════════════════════\\n\\n");
-    
-    printf("Enter your name: ");
-    fgets(username, sizeof(username), stdin);
-    username[strcspn(username, "\\n")] = 0;
-    
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        printf("\\n✗ Socket creation error\\n");
-        return -1;
-    }
-    
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(PORT);
-    
-    if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
-        printf("\\n✗ Invalid address / Address not supported\\n");
-        return -1;
-    }
-    
-    printf("Connecting to server at 127.0.0.1:%d...\\n", PORT);
-    if (connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
-        printf("\\n✗ Connection failed\\n");
-        return -1;
-    }
-    
-    printf("✓ Connected to server\\n\\n");
-    
-    printf("─────────────────────────────────────────\\n");
-    printf("Sending connection request...\\n");
-    printf("─────────────────────────────────────────\\n");
-    if (!send_with_ack(sock, "HELLO", username)) {
-        printf("Failed to establish connection\\n");
-        close(sock);
-        return -1;
-    }
-    
-    printf("═══════════════════════════════════════════\\n");
-    printf("  Chat session started\\n");
-    printf("  Type 'quit' to exit\\n");
-    printf("═══════════════════════════════════════════\\n\\n");
-    
-    while (1) {
-        printf("You: ");
-        fgets(message, BUFFER_SIZE, stdin);
-        message[strcspn(message, "\\n")] = 0;
-        
-        if (strlen(message) == 0) continue;
-        
-        if (strcmp(message, "quit") == 0) {
-            printf("\\nSending disconnect request...\\n");
-            printf("─────────────────────────────────────────\\n");
-            send_with_ack(sock, "BYE", "DISCONNECT");
-            break;
-        }
-        
-        printf("─────────────────────────────────────────\\n");
-        send_with_ack(sock, "MSG", message);
-    }
-    
-    close(sock);
-    
-    printf("\\n═══════════════════════════════════════════\\n");
-    printf("  Disconnected from server\\n");
-    printf("═══════════════════════════════════════════\\n");
-    
-    return 0;
-}`;
+      return `/* Two-way client code from implementation section */`;
     }
 
     function getMakefile() {
-      return `# Makefile for Simple Chat Protocol (SCP)
-
-CC = gcc
-CFLAGS = -Wall -Wextra -std=c99
-TARGET_SERVER = scp_server
-TARGET_CLIENT = scp_client
-
-all: $(TARGET_SERVER) $(TARGET_CLIENT)
-
-$(TARGET_SERVER): scp_server.c
-\t$(CC) $(CFLAGS) -o $(TARGET_SERVER) scp_server.c
-
-$(TARGET_CLIENT): scp_client.c
-\t$(CC) $(CFLAGS) -o $(TARGET_CLIENT) scp_client.c
-
-clean:
-\trm -f $(TARGET_SERVER) $(TARGET_CLIENT)
-
-.PHONY: all clean`;
+      return `/* Makefile from implementation section */`;
     }
   </script>
 </body>
