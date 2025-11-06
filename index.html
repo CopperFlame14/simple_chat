@@ -1075,6 +1075,333 @@ int main() {
 </pre>
         </div>
 
+		<!--client-->
+		        <h3>Enhanced Client Implementation</h3>
+        <div class="code-block">
+<pre>
+/*
+ * scp_client_two_way.c - Two-Way Simple Chat Protocol Client
+ * Multi-threaded client with bidirectional messaging
+ */
+
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;arpa/inet.h&gt;
+#include &lt;sys/socket.h&gt;
+#include &lt;time.h&gt;
+#include &lt;pthread.h&gt;
+#include &lt;stdatomic.h&gt;
+
+#define PORT 8080
+#define BUFFER_SIZE 1024
+#define ACK_TIMEOUT 5
+#define MAX_RETRIES 3
+
+// Global variables for thread communication
+int server_socket;
+pthread_mutex_t socket_mutex = PTHREAD_MUTEX_INITIALIZER;
+atomic_int message_id_counter = 0;
+int connection_active = 1;
+
+// Function to parse SCP message
+void parse_scp_message(char* buffer, char* msg_type, int* msg_id, char* payload) {
+    char* token;
+    char temp[BUFFER_SIZE];
+    strcpy(temp, buffer);
+    
+    token = strtok(temp, "|");
+    token = strtok(NULL, "|");
+    if (token) sscanf(token, " %s", msg_type);
+    
+    token = strtok(NULL, "|");
+    if (token) sscanf(token, " id=%d", msg_id);
+    
+    token = strtok(NULL, "|");
+    if (token) strcpy(payload, token + 1);
+}
+
+// Create SCP message
+void create_scp_message(char* buffer, const char* msg_type, int msg_id, const char* payload) {
+    sprintf(buffer, "SCP/1.1 | %s | id=%d | %s", msg_type, msg_id, payload);
+}
+
+// Thread-safe message sending
+void send_message_thread_safe(const char* message) {
+    pthread_mutex_lock(&socket_mutex);
+    send(server_socket, message, strlen(message), 0);
+    pthread_mutex_unlock(&socket_mutex);
+}
+
+// Thread-safe message receiving
+int receive_message_thread_safe(char* buffer) {
+    pthread_mutex_lock(&socket_mutex);
+    int bytes_read = recv(server_socket, buffer, BUFFER_SIZE, 0);
+    pthread_mutex_unlock(&socket_mutex);
+    return bytes_read;
+}
+
+// Send message with ACK wait and retry logic
+int send_with_ack(const char* msg_type, const char* payload) {
+    char send_buffer[BUFFER_SIZE];
+    char recv_buffer[BUFFER_SIZE];
+    int msg_id = atomic_fetch_add(&message_id_counter, 1);
+    int retries = 0;
+    
+    while (retries <= MAX_RETRIES && connection_active) {
+        create_scp_message(send_buffer, msg_type, msg_id, payload);
+        printf("[CLIENT] SEND (try %d): %s\\n", retries + 1, send_buffer);
+        send_message_thread_safe(send_buffer);
+        
+        // Wait for ACK with timeout
+        struct timeval tv;
+        tv.tv_sec = ACK_TIMEOUT;
+        tv.tv_usec = 0;
+        setsockopt(server_socket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+        
+        memset(recv_buffer, 0, BUFFER_SIZE);
+        int bytes_read = receive_message_thread_safe(recv_buffer);
+        
+        if (bytes_read > 0) {
+            char ack_type[50];
+            int ack_id;
+            char ack_payload[BUFFER_SIZE];
+            parse_scp_message(recv_buffer, ack_type, &ack_id, ack_payload);
+            
+            printf("[CLIENT] RECV: %s\\n", recv_buffer);
+            
+            if (strcmp(ack_type, "ACK") == 0 && ack_id == msg_id) {
+                printf("         ✓ ACK received for id=%d\\n\\n", msg_id);
+                return 1;
+            }
+        } else {
+            printf("         ⚠ TIMEOUT: No ACK received for id=%d\\n", msg_id);
+            retries++;
+            if (retries <= MAX_RETRIES) {
+                printf("         → Retrying... (%d/%d)\\n\\n", retries, MAX_RETRIES);
+            }
+        }
+    }
+    
+    if (connection_active) {
+        printf("         ✗ FAILED: Message delivery failed after %d retries\\n\\n", MAX_RETRIES);
+    }
+    return 0;
+}
+
+// Thread function for receiving messages
+void* receive_thread(void* arg) {
+    char buffer[BUFFER_SIZE];
+    
+    while (connection_active) {
+        memset(buffer, 0, BUFFER_SIZE);
+        int bytes_read = receive_message_thread_safe(buffer);
+        
+        if (bytes_read <= 0) {
+            if (connection_active) {
+                printf("Server disconnected or error occurred\\n");
+            }
+            connection_active = 0;
+            break;
+        }
+        
+        char msg_type[50], payload[BUFFER_SIZE];
+        int msg_id;
+        parse_scp_message(buffer, msg_type, &msg_id, payload);
+        
+        printf("[CLIENT] RECV: %s\\n", buffer);
+        
+        if (strcmp(msg_type, "ACK") == 0) {
+            printf("         ✓ ACK received for id=%d\\n\\n", msg_id);
+            
+        } else if (strcmp(msg_type, "MSG") == 0) {
+            printf("         → Server message: %s\\n", payload);
+            
+            // Send ACK for received message
+            char ack[BUFFER_SIZE];
+            create_scp_message(ack, "ACK", msg_id, "MSG_RECEIVED");
+            send_message_thread_safe(ack);
+            printf("[CLIENT] SEND: %s\\n\\n", ack);
+            
+        } else if (strcmp(msg_type, "BYE") == 0) {
+            printf("         → Server initiated disconnect\\n");
+            char ack[BUFFER_SIZE];
+            create_scp_message(ack, "ACK", msg_id, "DISCONNECT_ACK");
+            send_message_thread_safe(ack);
+            printf("[CLIENT] SEND: %s\\n\\n", ack);
+            connection_active = 0;
+            break;
+        }
+    }
+    
+    return NULL;
+}
+
+// Thread function for sending messages (user input)
+void* send_thread(void* arg) {
+    char user_input[BUFFER_SIZE];
+    
+    printf("═══════════════════════════════════════════\\n");
+    printf("  Chat session started (Two-Way Mode)\\n");
+    printf("  Type 'quit' to exit\\n");
+    printf("═══════════════════════════════════════════\\n\\n");
+    
+    while (connection_active) {
+        printf("You: ");
+        fflush(stdout);
+        
+        if (fgets(user_input, BUFFER_SIZE, stdin) == NULL) {
+            break;
+        }
+        
+        // Remove newline character
+        user_input[strcspn(user_input, "\\n")] = 0;
+        
+        if (strlen(user_input) == 0) {
+            continue;
+        }
+        
+        if (strcmp(user_input, "quit") == 0) {
+            printf("\\nSending disconnect request...\\n");
+            printf("─────────────────────────────────────────\\n");
+            send_with_ack("BYE", "DISCONNECT");
+            connection_active = 0;
+            break;
+        }
+        
+        printf("─────────────────────────────────────────\\n");
+        send_with_ack("MSG", user_input);
+    }
+    
+    return NULL;
+}
+
+int main() {
+    struct sockaddr_in serv_addr;
+    pthread_t recv_tid, send_tid;
+    char username[100];
+    
+    printf("═══════════════════════════════════════════\\n");
+    printf("  Two-Way SCP Client v1.1 (Multi-Threaded)\\n");
+    printf("═══════════════════════════════════════════\\n\\n");
+    
+    // Get username
+    printf("Enter your name: ");
+    fflush(stdout);
+    if (fgets(username, sizeof(username), stdin) == NULL) {
+        printf("Error reading username\\n");
+        return 1;
+    }
+    username[strcspn(username, "\\n")] = 0; // Remove newline
+    
+    printf("Connecting to server at 127.0.0.1:%d...\\n", PORT);
+    
+    // Create socket
+    if ((server_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        perror("Socket creation error");
+        return 1;
+    }
+    
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(PORT);
+    
+    // Convert IPv4 address from text to binary
+    if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
+        perror("Invalid address/ Address not supported");
+        return 1;
+    }
+    
+    // Connect to server
+    if (connect(server_socket, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
+        perror("Connection failed");
+        return 1;
+    }
+    
+    printf("✓ Connected to server\\n\\n");
+    
+    // Send HELLO message
+    printf("─────────────────────────────────────────\\n");
+    printf("Sending connection request...\\n");
+    printf("─────────────────────────────────────────\\n");
+    send_with_ack("HELLO", username);
+    
+    // Create receive and send threads
+    pthread_create(&recv_tid, NULL, receive_thread, NULL);
+    pthread_create(&send_tid, NULL, send_thread, NULL);
+    
+    // Wait for threads to complete
+    pthread_join(recv_tid, NULL);
+    pthread_join(send_tid, NULL);
+    
+    close(server_socket);
+    
+    printf("\\n═══════════════════════════════════════════\\n");
+    printf("  Disconnected from server\\n");
+    printf("═══════════════════════════════════════════\\n");
+    
+    return 0;
+}
+</pre>
+        </div>
+
+        <h3>Client Implementation Features</h3>
+        
+        <div class="flow-step">
+          <strong>🎯 User-Friendly Interface</strong>
+          <p>The client provides an intuitive chat interface:</p>
+          <div class="code-block">
+<pre>
+// Simple user interaction
+printf("You: ");
+fgets(user_input, BUFFER_SIZE, stdin);
+
+// Clean exit with "quit" command
+if (strcmp(user_input, "quit") == 0) {
+    send_with_ack("BYE", "DISCONNECT");
+    connection_active = 0;
+}
+</pre>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <strong>🔄 Bidirectional ACK Handling</strong>
+          <p>Client handles ACKs for both outgoing and incoming messages:</p>
+          <div class="code-block">
+<pre>
+// For outgoing messages: Wait for ACK with timeout
+// For incoming messages: Send ACK immediately
+if (strcmp(msg_type, "MSG") == 0) {
+    printf("→ Server message: %s\\n", payload);
+    char ack[BUFFER_SIZE];
+    create_scp_message(ack, "ACK", msg_id, "MSG_RECEIVED");
+    send_message_thread_safe(ack);
+}
+</pre>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <strong>🔒 Graceful Connection Management</strong>
+          <p>Proper connection lifecycle management:</p>
+          <div class="code-block">
+<pre>
+// Connection setup
+send_with_ack("HELLO", username);
+
+// Normal operation - bidirectional messaging
+while (connection_active) {
+    // Send and receive messages
+}
+
+// Graceful shutdown
+send_with_ack("BYE", "DISCONNECT");
+close(server_socket);
+</pre>
+          </div>
+        </div>
+
         <h3>Build and Execution</h3>
         
         <h4>Makefile</h4>
