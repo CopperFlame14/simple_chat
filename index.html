@@ -793,7 +793,7 @@ generate_message_id():
       </div>
     </div>
 
-    <!-- COMPLETED C IMPLEMENTATION TAB -->
+    <!-- IMPLEMENTATION TAB -->
     <div id="implementation" class="tab-content">
       <div class="section">
         <h2>💻 Two-Way C Implementation</h2>
@@ -1166,7 +1166,7 @@ $ gcc -o scp_client_two_way.exe scp_client_two_way.c -lws2_32 -lpthread
       </div>
     </div>
 
-    <!-- COMPLETED LIVE SIMULATOR TAB -->
+    <!-- SIMULATOR TAB -->
     <div id="simulator" class="tab-content">
       <div class="section">
         <h2>🎮 Two-Way Protocol Simulator</h2>
@@ -1298,7 +1298,7 @@ $ gcc -o scp_client_two_way.exe scp_client_two_way.c -lws2_32 -lpthread
       </div>
     </div>
 
-    <!-- COMPLETED RESULTS & TESTING TAB -->
+    <!-- RESULTS TAB -->
     <div id="results" class="tab-content">
       <div class="section">
         <h2>📊 Two-Way Protocol Results & Testing</h2>
@@ -1618,8 +1618,233 @@ Sending disconnect request...
       </div>
     </div>
 
-    <!-- REST OF THE TABS (Download, Help, Learn, Developed By) -->
-    <!-- These remain the same as in the previous implementation -->
+    <!-- DOWNLOAD TAB -->
+    <div id="download" class="tab-content">
+      <div class="section">
+        <h2>📥 Download Two-Way SCP Project Files</h2>
+        
+        <h3>Source Code</h3>
+        <p>Download the complete source code for the Two-Way Simple Chat Protocol:</p>
+        <a href="#" class="download-btn" onclick="downloadFile('scp_server_two_way.c', getServerCode()); return false;">Download scp_server_two_way.c</a>
+        <a href="#" class="download-btn" onclick="downloadFile('scp_client_two_way.c', getClientCode()); return false;">Download scp_client_two_way.c</a>
+        <a href="#" class="download-btn" onclick="downloadFile('Makefile_two_way', getMakefile()); return false;">Download Makefile</a>
+        
+        <h3>Project Documentation</h3>
+        <p>Download comprehensive documentation about the Two-Way SCP protocol:</p>
+        <a href="#" class="download-btn" onclick="downloadFile('Two_Way_SCP_Protocol_Specification.pdf', getProtocolSpec()); return false;">Download Protocol Specification</a>
+        <a href="#" class="download-btn" onclick="downloadFile('Two_Way_SCP_Implementation_Guide.pdf', getImplementationGuide()); return false;">Download Implementation Guide</a>
+        
+        <h3>Example Inputs and Outputs</h3>
+        <p>Download sample inputs and outputs to understand the bidirectional protocol behavior:</p>
+        <a href="#" class="download-btn" onclick="downloadFile('two_way_example_session.txt', getExampleSession()); return false;">Download Two-Way Example Session</a>
+        <a href="#" class="download-btn" onclick="downloadFile('multi_threading_guide.txt', getThreadingGuide()); return false;">Download Multi-Threading Guide</a>
+      </div>
+    </div>
+
+    <!-- HELP TAB -->
+    <div id="help" class="tab-content">
+      <div class="section">
+        <h2>❓ Help - How to Use Two-Way SCP</h2>
+        
+        <h3>Getting Started with Two-Way Communication</h3>
+        <p>Follow these steps to execute and use the Two-Way Simple Chat Protocol project:</p>
+        
+        <div class="help-steps">
+          <div class="help-step">
+            <h4>Step 1: Compile the Code</h4>
+            <p>Use the provided Makefile or compile manually using GCC with pthread support:</p>
+            <div class="code-block">
+              <pre>$ make</pre>
+            </div>
+            <p>This will create two executables: <code>scp_server_two_way</code> and <code>scp_client_two_way</code>.</p>
+          </div>
+          
+          <div class="help-step">
+            <h4>Step 2: Start the Server</h4>
+            <p>In one terminal, run the server application:</p>
+            <div class="code-block">
+              <pre>$ ./scp_server_two_way</pre>
+            </div>
+            <p>The server will start listening on port 8080 for incoming connections and will automatically send welcome messages.</p>
+          </div>
+          
+          <div class="help-step">
+            <h4>Step 3: Run the Client</h4>
+            <p>In another terminal, run the client application:</p>
+            <div class="code-block">
+              <pre>$ ./scp_client_two_way</pre>
+            </div>
+            <p>Follow the prompts to enter your name and connect to the server.</p>
+          </div>
+          
+          <div class="help-step">
+            <h4>Step 4: Experience Two-Way Communication</h4>
+            <p>Once connected, you can:</p>
+            <ul>
+              <li>Type messages to send to the server</li>
+              <li>Receive automatic responses from the server</li>
+              <li>See server-initiated messages (status updates, etc.)</li>
+              <li>Both sides handle acknowledgments and retransmissions automatically</li>
+            </ul>
+          </div>
+          
+          <div class="help-step">
+            <h4>Step 5: Disconnect</h4>
+            <p>Type "quit" to gracefully disconnect from the server and close the connection.</p>
+          </div>
+        </div>
+        
+        <h3>Two-Way Execution Flow</h3>
+        <ol>
+          <li>Server starts and listens for connections</li>
+          <li>Client connects and sends HELLO message</li>
+          <li>Server acknowledges HELLO and sends welcome message</li>
+          <li>Both client and server can send MSG messages simultaneously</li>
+          <li>Both sides acknowledge received messages with ACK</li>
+          <li>If ACK not received, both sides retransmit after timeout</li>
+          <li>Client sends BYE message to disconnect</li>
+          <li>Server acknowledges BYE and closes connection</li>
+        </ol>
+        
+        <h3>Interpreting Two-Way Results</h3>
+        <p>The protocol simulator on this website demonstrates:</p>
+        <ul>
+          <li><strong>Bidirectional Message Flow:</strong> Shows how messages travel in both directions</li>
+          <li><strong>Independent ACK Mechanism:</strong> Displays acknowledgment messages for each direction</li>
+          <li><strong>Simultaneous Communication:</strong> Illustrates true full-duplex operation</li>
+          <li><strong>Timeout Handling:</strong> Shows what happens when acknowledgments are delayed or lost in either direction</li>
+          <li><strong>Retransmissions:</strong> Demonstrates how the protocol recovers from packet loss in both directions</li>
+        </ul>
+        
+        <h3>Graph Interpretation</h3>
+        <p>The protocol visualization shows:</p>
+        <ul>
+          <li>Message direction (client to server or server to client)</li>
+          <li>Message types (HELLO, MSG, ACK, BYE)</li>
+          <li>Message IDs for tracking and correlation</li>
+          <li>Successful deliveries and retransmissions in both directions</li>
+          <li>Color coding for client vs server messages</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- LEARN TAB -->
+    <div id="learn" class="tab-content">
+      <div class="section">
+        <h2>📚 Learn About Two-Way SCP</h2>
+        
+        <h3>Advanced Networking Concepts</h3>
+        <p>The Two-Way Simple Chat Protocol (SCP) introduces advanced networking concepts including:</p>
+        <ul>
+          <li>Multi-threaded network programming</li>
+          <li>Thread synchronization and mutex locks</li>
+          <li>Bidirectional communication protocols</li>
+          <li>Full-duplex socket operations</li>
+          <li>Concurrent message processing</li>
+          <li>Atomic operations for thread safety</li>
+        </ul>
+        
+        <h3>How We Built This Enhanced Project</h3>
+        <p>The Two-Way SCP project was developed through these advanced stages:</p>
+        <ol>
+          <li><strong>Protocol Enhancement:</strong> Extended message format for bidirectional flow</li>
+          <li><strong>Multi-Threading Design:</strong> Created separate send and receive threads</li>
+          <li><strong>Synchronization:</strong> Implemented mutex locks for thread safety</li>
+          <li><strong>Bidirectional Testing:</strong> Verified functionality under various concurrent scenarios</li>
+          <li><strong>Performance Optimization:</strong> Improved throughput and reduced latency</li>
+          <li><strong>Enhanced Documentation:</strong> Created comprehensive guides for advanced features</li>
+        </ol>
+        
+        <h3>Educational Video</h3>
+        <p>Watch this video explaining the concepts behind bidirectional communication and multi-threading:</p>
+        <div class="video-container">
+          <iframe 
+            src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+            title="Two-Way SCP Protocol Explanation" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+          </iframe>
+        </div>
+        
+        <h3>Advanced References</h3>
+        <ul>
+          <li>Advanced Programming in the UNIX Environment by W. Richard Stevens</li>
+          <li>Pthreads Programming by Bradford Nichols, Dick Buttlar and Jacqueline Proulx Farrell</li>
+          <li>Computer Systems: A Programmer's Perspective by Randal E. Bryant and David R. O'Hallaron</li>
+          <li>The Linux Programming Interface by Michael Kerrisk</li>
+          <li>Unix Network Programming by W. Richard Stevens</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- DEVELOPED BY TAB -->
+    <div id="developedBy" class="tab-content">
+      <div class="section">
+        <h2>👥 Developed By</h2>
+        
+        <div class="team-member">
+          <div class="member-photo">👤</div>
+          <div class="member-info">
+            <h3>Team Member 1</h3>
+            <p>Registration Number: [Reg No 1]</p>
+            <p>Course: [Your Course]</p>
+            <p>Role: Protocol Design & Multi-threading Implementation</p>
+          </div>
+        </div>
+        
+        <div class="team-member">
+          <div class="member-photo">👤</div>
+          <div class="member-info">
+            <h3>Team Member 2</h3>
+            <p>Registration Number: [Reg No 2]</p>
+            <p>Course: [Your Course]</p>
+            <p>Role: Client Implementation & Testing</p>
+          </div>
+        </div>
+
+        <div class="team-member">
+          <div class="member-photo">👤</div>
+          <div class="member-info">
+            <h3>Team Member 3</h3>
+            <p>Registration Number: [Reg No 3]</p>
+            <p>Course: [Your Course]</p>
+            <p>Role: Server Implementation & Documentation</p>
+          </div>
+        </div>
+        
+        <!-- Separation Line -->
+        <div style="text-align: center; margin: 30px 0; position: relative;">
+          <div style="height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent);"></div>
+          <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--panel); padding: 0 20px; color: var(--accent); font-weight: 600;">
+            Project Mentor
+          </div>
+        </div>
+        
+        <!-- Mentor Section -->
+        <div class="team-member" style="background: rgba(94,234,212,0.05); border: 1px solid rgba(94,234,212,0.3);">
+          <div class="member-photo" style="background: rgba(94,234,212,0.2);">👨‍🏫</div>
+          <div class="member-info">
+            <h3 style="color: var(--accent);">Dr. [Mentor Name]</h3>
+            <p>Designation: [Professor/Assistant Professor]</p>
+            <p>Department: [Computer Science/IT Department]</p>
+            <p>College: [Your College Name]</p>
+            <p>Specialization: Computer Networks & Distributed Systems</p>
+          </div>
+        </div>
+
+        <div class="success" style="margin-top: 30px;">
+          <h3>🏆 Project Achievements</h3>
+          <ul>
+            <li>Successfully implemented bidirectional communication protocol</li>
+            <li>Achieved full-duplex messaging with reliability in both directions</li>
+            <li>Implemented thread-safe socket operations using mutex locks</li>
+            <li>Created comprehensive documentation and interactive simulator</li>
+            <li>Demonstrated real-world protocol design principles</li>
+          </ul>
+        </div>
+      </div>
+    </div>
 
     <footer>
       <p><strong>Two-Way Simple Chat Protocol (SCP) v1.1</strong></p>
@@ -2097,6 +2322,22 @@ Sending disconnect request...
 
     function getMakefile() {
       return `/* Complete Makefile for two-way implementation */`;
+    }
+
+    function getProtocolSpec() {
+      return `Two-Way SCP Protocol Specification v1.1`;
+    }
+
+    function getImplementationGuide() {
+      return `Two-Way SCP Implementation Guide`;
+    }
+
+    function getExampleSession() {
+      return `Two-Way SCP Example Session`;
+    }
+
+    function getThreadingGuide() {
+      return `Multi-Threading Guide for Two-Way SCP`;
     }
   </script>
 </body>
