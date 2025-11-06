@@ -2203,17 +2203,51 @@ Sending disconnect request...
     // Initialize with overview tab active
     switchTab('overview');
 
-    // File download functions
-    function downloadFile(filename, content) {
-      const blob = new Blob([content], { type: 'text/plain' });
+// File download functions
+    function downloadFile(filename, content, isDoc = false) {
+      let blob, finalFilename;
+      
+      if (isDoc) {
+        // Convert to RTF format for Word compatibility
+        const rtfContent = convertToRTF(content);
+        blob = new Blob([rtfContent], { type: 'application/rtf' });
+        // Change extension to .doc or .rtf
+        finalFilename = filename.replace(/\.(txt|c)$/, '.doc');
+      } else {
+        // Keep as plain text for code files
+        blob = new Blob([content], { type: 'text/plain' });
+        finalFilename = filename;
+      }
+      
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = filename;
+      a.download = finalFilename;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+    }
+    
+    // Convert plain text to RTF format for Word
+    function convertToRTF(text) {
+      // Escape RTF special characters
+      text = text.replace(/\\/g, '\\\\')
+                 .replace(/\{/g, '\\{')
+                 .replace(/\}/g, '\\}');
+      
+      // Convert line breaks to RTF paragraph breaks
+      text = text.replace(/\n/g, '\\par\n');
+      
+      // Create RTF document with formatting
+      const rtf = `{\\rtf1\\ansi\\deff0
+{\\fonttbl{\\f0\\fmodern\\fcharset0 Courier New;}{\\f1\\fswiss\\fcharset0 Arial;}}
+{\\colortbl;\\red0\\green0\\blue0;\\red0\\green128\\blue0;\\red128\\green0\\blue0;}
+\\f1\\fs22
+${text}
+}`;
+      
+      return rtf;
     }
 
     function getServerCode() {
