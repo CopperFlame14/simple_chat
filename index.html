@@ -800,9 +800,9 @@ generate_message_id():
 
         <div class="success">
           <strong>📦 Download Complete Source Code:</strong><br>
-          <a href="#" class="download-btn" onclick="downloadFile('scp_server_two_way.c', getServerCode()); return false;">Download scp_server_two_way.c</a>
-          <a href="#" class="download-btn" onclick="downloadFile('scp_client_two_way.c', getClientCode()); return false;">Download scp_client_two_way.c</a>
-          <a href="#" class="download-btn" onclick="downloadFile('Makefile_two_way', getMakefile()); return false;">Download Makefile</a>
+          <a href="#" class="download-btn" onclick="downloadFile('scp_server_two_way.doc', getServerCode()); return false;">Download scp_server_two_way.doc</a>
+<a href="#" class="download-btn" onclick="downloadFile('scp_client_two_way.doc', getClientCode()); return false;">Download scp_client_two_way.doc</a>
+<a href="#" class="download-btn" onclick="downloadFile('Makefile_two_way.doc', getMakefile()); return false;">Download Makefile.doc</a>
         </div>
 
         <h3>Project Structure</h3>
@@ -1952,19 +1952,19 @@ Sending disconnect request...
         
         <h3>Source Code</h3>
         <p>Download the complete source code for the Two-Way Simple Chat Protocol:</p>
-        <a href="#" class="download-btn" onclick="downloadFile('scp_server_two_way.c', getServerCode()); return false;">Download scp_server_two_way.c</a>
-        <a href="#" class="download-btn" onclick="downloadFile('scp_client_two_way.c', getClientCode()); return false;">Download scp_client_two_way.c</a>
-        <a href="#" class="download-btn" onclick="downloadFile('Makefile_two_way', getMakefile()); return false;">Download Makefile</a>
+        <a href="#" class="download-btn" onclick="downloadFile('scp_server_two_way.doc', getServerCode()); return false;">Download scp_server_two_way.doc</a>
+<a href="#" class="download-btn" onclick="downloadFile('scp_client_two_way.doc', getClientCode()); return false;">Download scp_client_two_way.doc</a>
+<a href="#" class="download-btn" onclick="downloadFile('Makefile_two_way.doc', getMakefile()); return false;">Download Makefile.doc</a>
         
         <h3>Project Documentation</h3>
         <p>Download comprehensive documentation about the Two-Way SCP protocol:</p>
-        <a href="#" class="download-btn" onclick="downloadFile('Two_Way_SCP_Protocol_Specification.pdf', getProtocolSpec()); return false;">Download Protocol Specification</a>
-        <a href="#" class="download-btn" onclick="downloadFile('Two_Way_SCP_Implementation_Guide.pdf', getImplementationGuide()); return false;">Download Implementation Guide</a>
+        <a href="#" class="download-btn" onclick="downloadFile('Two_Way_SCP_Protocol_Specification.doc', getProtocolSpec()); return false;">Download Protocol Specification</a>
+<a href="#" class="download-btn" onclick="downloadFile('Two_Way_SCP_Implementation_Guide.doc', getImplementationGuide()); return false;">Download Implementation Guide</a>
         
         <h3>Example Inputs and Outputs</h3>
         <p>Download sample inputs and outputs to understand the bidirectional protocol behavior:</p>
-        <a href="#" class="download-btn" onclick="downloadFile('two_way_example_session.txt', getExampleSession()); return false;">Download Two-Way Example Session</a>
-        <a href="#" class="download-btn" onclick="downloadFile('multi_threading_guide.txt', getThreadingGuide()); return false;">Download Multi-Threading Guide</a>
+       <a href="#" class="download-btn" onclick="downloadFile('two_way_example_session.doc', getExampleSession()); return false;">Download Two-Way Example Session</a>
+<a href="#" class="download-btn" onclick="downloadFile('multi_threading_guide.doc', getThreadingGuide()); return false;">Download Multi-Threading Guide</a>
       </div>
     </div>
 
@@ -2204,30 +2204,23 @@ Sending disconnect request...
     switchTab('overview');
 
 // File download functions
-    function downloadFile(filename, content, isDoc = false) {
-      let blob, finalFilename;
-      
-      if (isDoc) {
-        // Convert to RTF format for Word compatibility
-        const rtfContent = convertToRTF(content);
-        blob = new Blob([rtfContent], { type: 'application/rtf' });
-        // Change extension to .doc or .rtf
-        finalFilename = filename.replace(/\.(txt|c)$/, '.doc');
-      } else {
-        // Keep as plain text for code files
-        blob = new Blob([content], { type: 'text/plain' });
-        finalFilename = filename;
-      }
-      
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = finalFilename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
+    function downloadFile(filename, content) {
+  // Force all downloads to be .doc files
+  const finalFilename = filename.replace(/\.(txt|c)$/, '.doc');
+  
+  // Convert to RTF format for Word compatibility
+  const rtfContent = convertToRTF(content);
+  const blob = new Blob([rtfContent], { type: 'application/msword' });
+  
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = finalFilename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
     
     // Convert plain text to RTF format for Word
     function convertToRTF(text) {
