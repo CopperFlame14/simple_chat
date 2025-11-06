@@ -2172,7 +2172,7 @@ Sending disconnect request...
   </div>
 
   <script>
-    // Unified tab navigation for both top buttons and nav tabs
+	      // Unified tab navigation for both top buttons and nav tabs
     function switchTab(tabId) {
       // Update all buttons
       document.querySelectorAll('.tab-btn, .top-btn').forEach(btn => {
@@ -2203,6 +2203,46 @@ Sending disconnect request...
     // Initialize with overview tab active
     switchTab('overview');
 
+    // File download functions
+    function downloadFile(filename, content) {
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function getServerCode() {
+      return `/* Complete two-way server code */`;
+    }
+
+    function getClientCode() {
+      return `/* Complete two-way client code */`;
+    }
+
+    function getMakefile() {
+      return `/* Complete Makefile for two-way implementation */`;
+    }
+
+    function getProtocolSpec() {
+      return `Two-Way SCP Protocol Specification v1.1`;
+    }
+
+    function getImplementationGuide() {
+      return `Two-Way SCP Implementation Guide`;
+    }
+
+    function getExampleSession() {
+      return `Two-Way SCP Example Session`;
+    }
+
+    function getThreadingGuide() {
+      return `Multi-Threading Guide for Two-Way SCP`;
+    }
     // Two-Way Simulator functionality
     let simulatorInitialized = false;
     let clientMsgCounter = 0;
