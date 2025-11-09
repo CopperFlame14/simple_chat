@@ -624,12 +624,13 @@
     </header>
 
     <nav class="nav-tabs">
-      <button class="tab-btn active" data-tab="overview">Overview</button>
-      <button class="tab-btn" data-tab="protocol">Protocol Design</button>
-      <button class="tab-btn" data-tab="implementation">C Implementation</button>
-      <button class="tab-btn" data-tab="simulator">Live Simulator</button>
-      <button class="tab-btn" data-tab="results">Results & Testing</button>
-    </nav>
+  <button class="tab-btn active" data-tab="overview">Overview</button>
+  <button class="tab-btn" data-tab="protocol">Protocol Design</button>
+  <button class="tab-btn" data-tab="implementation">C Implementation</button>
+  <button class="tab-btn" onclick="window.open('https://simple-chat-4vu4.onrender.com', '_blank')">Live Simulator</button>
+  <button class="tab-btn" data-tab="simulator">Live Implementation</button>
+  <button class="tab-btn" data-tab="results">Results & Testing</button>
+</nav>
 
     <!-- OVERVIEW TAB -->
     <div id="overview" class="tab-content active">
@@ -1535,7 +1536,7 @@ $ gcc -o scp_client_two_way.exe scp_client_two_way.c -lws2_32 -lpthread
     <!-- SIMULATOR TAB -->
     <div id="simulator" class="tab-content">
       <div class="section">
-        <h2>🎮 Two-Way Protocol Simulator</h2>
+        <h2>🎮 Live Implementation</h2>
         <p>Experience bidirectional communication with simultaneous message exchange in real-time!</p>
 
         <div class="controls">
