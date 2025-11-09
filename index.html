@@ -278,7 +278,7 @@
       margin: 8px 0;
     }
 
-    .implementation-container {
+    .simulator-container {
       margin: 30px 0;
     }
 
@@ -627,8 +627,7 @@
       <button class="tab-btn active" data-tab="overview">Overview</button>
       <button class="tab-btn" data-tab="protocol">Protocol Design</button>
       <button class="tab-btn" data-tab="implementation">C Implementation</button>
-      <button class="tab-btn" data-tab="implementation">Web Implementation</button>
-		<button class="tab-btn" data-tab="implementation">Live Simulator</button>
+      <button class="tab-btn" data-tab="simulator">Live Simulator</button>
       <button class="tab-btn" data-tab="results">Results & Testing</button>
     </nav>
 
@@ -1533,10 +1532,10 @@ $ gcc -o scp_client_two_way.exe scp_client_two_way.c -lws2_32 -lpthread
       </div>
     </div>
 
-    <!-- implementation TAB -->
-    <div id="implementation" class="tab-content">
+    <!-- SIMULATOR TAB -->
+    <div id="simulator" class="tab-content">
       <div class="section">
-        <h2>🎮 Two-Way Protocol implementation</h2>
+        <h2>🎮 Two-Way Protocol Simulator</h2>
         <p>Experience bidirectional communication with simultaneous message exchange in real-time!</p>
 
         <div class="controls">
@@ -1579,7 +1578,7 @@ $ gcc -o scp_client_two_way.exe scp_client_two_way.c -lws2_32 -lpthread
           </div>
         </div>
 
-        <div class="implementation-container">
+        <div class="simulator-container">
           <div class="panels">
             <div class="panel" id="clientPanel">
               <div class="panel-title">📱 Client (You)</div>
@@ -1610,7 +1609,7 @@ $ gcc -o scp_client_two_way.exe scp_client_two_way.c -lws2_32 -lpthread
           <div style="margin-top: 20px;">
             <h4 style="color: #5eead4;">📊 Event Log</h4>
             <div id="eventLog" class="event-log">
-              <div class="log-line">[System] Two-way implementation initialized</div>
+              <div class="log-line">[System] Two-way simulator initialized</div>
               <div class="log-line">[System] Client connected to server</div>
               <div class="log-line">[System] Ready for bidirectional communication</div>
             </div>
@@ -1628,10 +1627,10 @@ $ gcc -o scp_client_two_way.exe scp_client_two_way.c -lws2_32 -lpthread
           </ul>
         </div>
 
-        <h3>How the Two-Way implementation Works</h3>
+        <h3>How the Two-Way Simulator Works</h3>
         <div class="flow-step">
           <strong>🔄 Bidirectional Message Flow</strong>
-          <p>The implementation implements the complete two-way protocol with:</p>
+          <p>The simulator implements the complete two-way protocol with:</p>
           <ul>
             <li>Independent message queues for client and server</li>
             <li>Separate ACK handling for each direction</li>
@@ -1653,7 +1652,7 @@ $ gcc -o scp_client_two_way.exe scp_client_two_way.c -lws2_32 -lpthread
 
         <div class="flow-step">
           <strong>📊 Real-time Statistics</strong>
-          <p>The implementation tracks:</p>
+          <p>The simulator tracks:</p>
           <ul>
             <li>Messages sent and received in both directions</li>
             <li>Successful deliveries vs retransmissions</li>
@@ -2074,7 +2073,7 @@ Sending disconnect request...
         </ol>
         
         <h3>Interpreting Two-Way Results</h3>
-        <p>The protocol implementation on this website demonstrates:</p>
+        <p>The protocol simulator on this website demonstrates:</p>
         <ul>
           <li><strong>Bidirectional Message Flow:</strong> Shows how messages travel in both directions</li>
           <li><strong>Independent ACK Mechanism:</strong> Displays acknowledgment messages for each direction</li>
@@ -3636,16 +3635,16 @@ For more information, consult:
 - "Programming with POSIX Threads" by David Butenhof
 - Linux man pages: man pthread`;
     }
-    // Two-Way implementation functionality
-    let implementationInitialized = false;
+    // Two-Way Simulator functionality
+    let simulatorInitialized = false;
     let clientMsgCounter = 0;
     let serverMsgCounter = 100;
     const activeClientMessages = new Map();
     const activeServerMessages = new Map();
 
-    function initimplementation() {
-      if (implementationInitialized) return;
-      implementationInitialized = true;
+    function initSimulator() {
+      if (simulatorInitialized) return;
+      simulatorInitialized = true;
 
       const clientConsole = document.getElementById('clientConsole');
       const serverConsole = document.getElementById('serverConsole');
@@ -4032,19 +4031,19 @@ For more information, consult:
       });
 
       // Initialize with welcome messages
-      logEvent('Two-way implementation ready! Send messages from both sides.');
+      logEvent('Two-way simulator ready! Send messages from both sides.');
       setTimeout(() => {
         serverSend("Welcome to Two-Way SCP! I'm the server and can send messages too.");
       }, 1000);
     }
 
-    // Initialize implementation when switching to that tab
+    // Initialize simulator when switching to that tab
     document.querySelectorAll('.tab-btn, .top-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const targetTab = btn.dataset.tab;
         
-        if (targetTab === 'implementation') {
-          setTimeout(() => initimplementation(), 100);
+        if (targetTab === 'simulator') {
+          setTimeout(() => initSimulator(), 100);
         }
       });
     });
