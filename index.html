@@ -626,7 +626,6 @@
     <nav class="nav-tabs">
   <button class="tab-btn active" data-tab="overview">Overview</button>
   <button class="tab-btn" data-tab="protocol">Protocol Design</button>
-  <button class="tab-btn" data-tab="implementation">C Implementation</button>
   <button class="tab-btn" onclick="window.open('https://simple-chat-4vu4.onrender.com', '_blank')">Live Simulator</button>
   <button class="tab-btn" data-tab="simulator">Live Implementation</button>
   <button class="tab-btn" data-tab="results">Results & Testing</button>
@@ -833,8 +832,8 @@ generate_message_id():
       </div>
     </div>
 
-    <!-- IMPLEMENTATION TAB -->
-    <div id="implementation" class="tab-content">
+    <!-- IMPLEMENTATION TAB - HIDDEN BUT KEEPS DOWNLOAD FUNCTIONS -->
+<div id="implementation" class="tab-content" style="display: none !important;">
       <div class="section">
         <h2>💻 Two-Way C Implementation</h2>
 
@@ -921,15 +920,15 @@ int send_with_ack(const char* msg_type, const char* payload) {
  * Multi-threaded server with bidirectional messaging
  */
 
-#include &lt;stdio.h&gt;
-#include &lt;stdlib.h&gt;
-#include &lt;string.h&gt;
-#include &lt;unistd.h&gt;
-#include &lt;arpa/inet.h&gt;
-#include &lt;sys/socket.h&gt;
-#include &lt;time.h&gt;
-#include &lt;pthread.h&gt;
-#include &lt;stdatomic.h&gt;
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <time.h>
+#include <pthread.h>
+#include <stdatomic.h>
 
 #define PORT 8080
 #define BUFFER_SIZE 1024
@@ -940,12 +939,64 @@ int send_with_ack(const char* msg_type, const char* payload) {
 int client_socket;
 pthread_mutex_t socket_mutex = PTHREAD_MUTEX_INITIALIZER;
 atomic_int message_id_counter = 0;
+volatile int connection_active = 1;
+
+// Function prototypes
+void create_scp_message(char* buffer, const char* msg_type, int msg_id, const char* payload);
+void parse_scp_message(char* buffer, char* msg_type, int* msg_id, char* payload);
+void send_message_thread_safe(const char* message);
+int receive_message_thread_safe(char* buffer);
+int send_with_ack(const char* msg_type, const char* payload);
+void* receive_thread(void* arg);
+void* send_thread(void* arg);
+
+// Create SCP message
+void create_scp_message(char* buffer, const char* msg_type, int msg_id, const char* payload) {
+    snprintf(buffer, BUFFER_SIZE, "SCP/1.1 | %s | id=%d | %s", msg_type, msg_id, payload);
+}
+
+// Parse SCP message
+void parse_scp_message(char* buffer, char* msg_type, int* msg_id, char* payload) {
+    char temp[BUFFER_SIZE];
+    strncpy(temp, buffer, BUFFER_SIZE - 1);
+    temp[BUFFER_SIZE - 1] = '\0';
+    
+    char* token = strtok(temp, "|");
+    if (!token) return;
+    
+    token = strtok(NULL, "|");
+    if (token) {
+        sscanf(token, " %49s", msg_type);
+    }
+    
+    token = strtok(NULL, "|");
+    if (token) {
+        sscanf(token, " id=%d", msg_id);
+    }
+    
+    token = strtok(NULL, "|");
+    if (token) {
+        strncpy(payload, token + 1, BUFFER_SIZE - 1);
+        payload[BUFFER_SIZE - 1] = '\0';
+    }
+}
 
 // Thread-safe message sending
 void send_message_thread_safe(const char* message) {
     pthread_mutex_lock(&socket_mutex);
     send(client_socket, message, strlen(message), 0);
     pthread_mutex_unlock(&socket_mutex);
+}
+
+// Thread-safe message receiving
+int receive_message_thread_safe(char* buffer) {
+    pthread_mutex_lock(&socket_mutex);
+    int bytes_read = recv(client_socket, buffer, BUFFER_SIZE - 1, 0);
+    pthread_mutex_unlock(&socket_mutex);
+    if (bytes_read > 0) {
+        buffer[bytes_read] = '\0';
+    }
+    return bytes_read;
 }
 
 // Send message with ACK wait and retry logic
@@ -955,16 +1006,18 @@ int send_with_ack(const char* msg_type, const char* payload) {
     int msg_id = atomic_fetch_add(&message_id_counter, 1);
     int retries = 0;
     
-    while (retries <= MAX_RETRIES) {
+    while (retries <= MAX_RETRIES && connection_active) {
         create_scp_message(send_buffer, msg_type, msg_id, payload);
-        printf("[SERVER] SEND (try %d): %s\\n", retries + 1, send_buffer);
+        printf("[SERVER] SEND (try %d): %s\n", retries + 1, send_buffer);
         send_message_thread_safe(send_buffer);
         
         // Wait for ACK with timeout
         struct timeval tv;
         tv.tv_sec = ACK_TIMEOUT;
         tv.tv_usec = 0;
+        pthread_mutex_lock(&socket_mutex);
         setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+        pthread_mutex_unlock(&socket_mutex);
         
         memset(recv_buffer, 0, BUFFER_SIZE);
         int bytes_read = receive_message_thread_safe(recv_buffer);
@@ -975,35 +1028,39 @@ int send_with_ack(const char* msg_type, const char* payload) {
             char ack_payload[BUFFER_SIZE];
             parse_scp_message(recv_buffer, ack_type, &ack_id, ack_payload);
             
-            printf("[SERVER] RECV: %s\\n", recv_buffer);
+            printf("[SERVER] RECV: %s\n", recv_buffer);
             
             if (strcmp(ack_type, "ACK") == 0 && ack_id == msg_id) {
-                printf("         ✓ ACK received for id=%d\\n\\n", msg_id);
+                printf("         ✓ ACK received for id=%d\n\n", msg_id);
                 return 1;
             }
         } else {
-            printf("         ⚠ TIMEOUT: No ACK received for id=%d\\n", msg_id);
+            printf("         ⚠ TIMEOUT: No ACK received for id=%d\n", msg_id);
             retries++;
             if (retries <= MAX_RETRIES) {
-                printf("         → Retrying... (%d/%d)\\n\\n", retries, MAX_RETRIES);
+                printf("         → Retrying... (%d/%d)\n\n", retries, MAX_RETRIES);
             }
         }
     }
     
-    printf("         ✗ FAILED: Message delivery failed after %d retries\\n\\n", MAX_RETRIES);
+    if (connection_active) {
+        printf("         ✗ FAILED: Message delivery failed after %d retries\n\n", MAX_RETRIES);
+    }
     return 0;
 }
 
 // Thread function for receiving messages
 void* receive_thread(void* arg) {
+    (void)arg;
     char buffer[BUFFER_SIZE];
     
-    while (1) {
+    while (connection_active) {
         memset(buffer, 0, BUFFER_SIZE);
         int bytes_read = receive_message_thread_safe(buffer);
         
         if (bytes_read <= 0) {
-            printf("Client disconnected or error occurred\\n");
+            printf("Client disconnected or error occurred\n");
+            connection_active = 0;
             break;
         }
         
@@ -1011,23 +1068,23 @@ void* receive_thread(void* arg) {
         int msg_id;
         parse_scp_message(buffer, msg_type, &msg_id, payload);
         
-        printf("[SERVER] RECV: %s\\n", buffer);
+        printf("[SERVER] RECV: %s\n", buffer);
         
         if (strcmp(msg_type, "HELLO") == 0) {
-            printf("         → Connection from: %s\\n", payload);
+            printf("         → Connection from: %s\n", payload);
             char ack[BUFFER_SIZE];
             create_scp_message(ack, "ACK", msg_id, "CONNECTION_ESTABLISHED");
             send_message_thread_safe(ack);
-            printf("[SERVER] SEND: %s\\n\\n", ack);
+            printf("[SERVER] SEND: %s\n\n", ack);
             
         } else if (strcmp(msg_type, "MSG") == 0) {
-            printf("         → Client message: %s\\n", payload);
+            printf("         → Client message: %s\n", payload);
             
             // Send ACK for received message
             char ack[BUFFER_SIZE];
             create_scp_message(ack, "ACK", msg_id, "MSG_RECEIVED");
             send_message_thread_safe(ack);
-            printf("[SERVER] SEND: %s\\n\\n", ack);
+            printf("[SERVER] SEND: %s\n\n", ack);
             
             // Auto-reply to client (server can initiate conversation!)
             if (strstr(payload, "?") != NULL) {
@@ -1036,11 +1093,12 @@ void* receive_thread(void* arg) {
             }
             
         } else if (strcmp(msg_type, "BYE") == 0) {
-            printf("         → Client disconnecting\\n");
+            printf("         → Client disconnecting\n");
             char ack[BUFFER_SIZE];
             create_scp_message(ack, "ACK", msg_id, "DISCONNECT_ACK");
             send_message_thread_safe(ack);
-            printf("[SERVER] SEND: %s\\n\\n", ack);
+            printf("[SERVER] SEND: %s\n\n", ack);
+            connection_active = 0;
             break;
         }
     }
@@ -1050,16 +1108,21 @@ void* receive_thread(void* arg) {
 
 // Thread function for sending messages (server-initiated)
 void* send_thread(void* arg) {
+    (void)arg;
     // Server can send periodic messages or respond to events
     sleep(3); // Wait for connection to establish
+    
+    if (!connection_active) return NULL;
     
     // Send welcome message
     send_with_ack("MSG", "Welcome to the Two-Way SCP Server! You can chat with me.");
     
     // Send periodic status updates
     int counter = 0;
-    while (1) {
+    while (connection_active) {
         sleep(10); // Send message every 10 seconds
+        if (!connection_active) break;
+        
         char status_msg[BUFFER_SIZE];
         snprintf(status_msg, sizeof(status_msg), "Server status update #%d - All systems operational", ++counter);
         send_with_ack("MSG", status_msg);
@@ -1074,26 +1137,48 @@ int main() {
     int addrlen = sizeof(address);
     pthread_t recv_tid, send_tid;
     
-    printf("═══════════════════════════════════════════\\n");
-    printf("  Two-Way SCP Server v1.1 (Multi-Threaded)\\n");
-    printf("═══════════════════════════════════════════\\n\\n");
+    printf("═══════════════════════════════════════════\n");
+    printf("  Two-Way SCP Server v1.1 (Multi-Threaded)\n");
+    printf("═══════════════════════════════════════════\n\n");
     
-    // Create socket and setup (standard socket operations)
+    // Create socket
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
         perror("Socket creation failed");
         exit(EXIT_FAILURE);
     }
     
-    // ... (standard bind, listen, accept operations)
+    // Set socket options
+    int opt = 1;
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) {
+        perror("setsockopt failed");
+        exit(EXIT_FAILURE);
+    }
     
-    printf("🟢 Server listening on port %d...\\n\\n", PORT);
+    // Bind socket
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(PORT);
     
+    if (bind(server_fd, (struct sockaddr*)&address, sizeof(address)) < 0) {
+        perror("Bind failed");
+        exit(EXIT_FAILURE);
+    }
+    
+    // Listen
+    if (listen(server_fd, 1) < 0) {
+        perror("Listen failed");
+        exit(EXIT_FAILURE);
+    }
+    
+    printf("🟢 Server listening on port %d...\n\n", PORT);
+    
+    // Accept client connection
     if ((client_socket = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) < 0) {
         perror("Accept failed");
         exit(EXIT_FAILURE);
     }
     
-    printf("✓ Client connected from %s:%d\\n\\n", inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+    printf("✓ Client connected from %s:%d\n\n", inet_ntoa(address.sin_addr), ntohs(address.sin_port));
     
     // Create receive and send threads
     pthread_create(&recv_tid, NULL, receive_thread, NULL);
@@ -1102,13 +1187,14 @@ int main() {
     // Wait for threads to complete
     pthread_join(recv_tid, NULL);
     pthread_cancel(send_tid); // Stop send thread when receive thread ends
+    pthread_join(send_tid, NULL);
     
     close(client_socket);
     close(server_fd);
     
-    printf("\\n═══════════════════════════════════════════\\n");
-    printf("  Server shutdown complete\\n");
-    printf("═══════════════════════════════════════════\\n");
+    printf("\n═══════════════════════════════════════════\n");
+    printf("  Server shutdown complete\n");
+    printf("═══════════════════════════════════════════\n");
     
     return 0;
 }
@@ -1124,15 +1210,15 @@ int main() {
  * Multi-threaded client with bidirectional messaging
  */
 
-#include &lt;stdio.h&gt;
-#include &lt;stdlib.h&gt;
-#include &lt;string.h&gt;
-#include &lt;unistd.h&gt;
-#include &lt;arpa/inet.h&gt;
-#include &lt;sys/socket.h&gt;
-#include &lt;time.h&gt;
-#include &lt;pthread.h&gt;
-#include &lt;stdatomic.h&gt;
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <time.h>
+#include <pthread.h>
+#include <stdatomic.h>
 
 #define PORT 8080
 #define BUFFER_SIZE 1024
@@ -1143,28 +1229,46 @@ int main() {
 int server_socket;
 pthread_mutex_t socket_mutex = PTHREAD_MUTEX_INITIALIZER;
 atomic_int message_id_counter = 0;
-int connection_active = 1;
+volatile int connection_active = 1;
 
-// Function to parse SCP message
-void parse_scp_message(char* buffer, char* msg_type, int* msg_id, char* payload) {
-    char* token;
-    char temp[BUFFER_SIZE];
-    strcpy(temp, buffer);
-    
-    token = strtok(temp, "|");
-    token = strtok(NULL, "|");
-    if (token) sscanf(token, " %s", msg_type);
-    
-    token = strtok(NULL, "|");
-    if (token) sscanf(token, " id=%d", msg_id);
-    
-    token = strtok(NULL, "|");
-    if (token) strcpy(payload, token + 1);
-}
+// Function prototypes
+void create_scp_message(char* buffer, const char* msg_type, int msg_id, const char* payload);
+void parse_scp_message(char* buffer, char* msg_type, int* msg_id, char* payload);
+void send_message_thread_safe(const char* message);
+int receive_message_thread_safe(char* buffer);
+int send_with_ack(const char* msg_type, const char* payload);
+void* receive_thread(void* arg);
+void* send_thread(void* arg);
 
 // Create SCP message
 void create_scp_message(char* buffer, const char* msg_type, int msg_id, const char* payload) {
-    sprintf(buffer, "SCP/1.1 | %s | id=%d | %s", msg_type, msg_id, payload);
+    snprintf(buffer, BUFFER_SIZE, "SCP/1.1 | %s | id=%d | %s", msg_type, msg_id, payload);
+}
+
+// Function to parse SCP message
+void parse_scp_message(char* buffer, char* msg_type, int* msg_id, char* payload) {
+    char temp[BUFFER_SIZE];
+    strncpy(temp, buffer, BUFFER_SIZE - 1);
+    temp[BUFFER_SIZE - 1] = '\0';
+    
+    char* token = strtok(temp, "|");
+    if (!token) return;
+    
+    token = strtok(NULL, "|");
+    if (token) {
+        sscanf(token, " %49s", msg_type);
+    }
+    
+    token = strtok(NULL, "|");
+    if (token) {
+        sscanf(token, " id=%d", msg_id);
+    }
+    
+    token = strtok(NULL, "|");
+    if (token) {
+        strncpy(payload, token + 1, BUFFER_SIZE - 1);
+        payload[BUFFER_SIZE - 1] = '\0';
+    }
 }
 
 // Thread-safe message sending
@@ -1177,8 +1281,11 @@ void send_message_thread_safe(const char* message) {
 // Thread-safe message receiving
 int receive_message_thread_safe(char* buffer) {
     pthread_mutex_lock(&socket_mutex);
-    int bytes_read = recv(server_socket, buffer, BUFFER_SIZE, 0);
+    int bytes_read = recv(server_socket, buffer, BUFFER_SIZE - 1, 0);
     pthread_mutex_unlock(&socket_mutex);
+    if (bytes_read > 0) {
+        buffer[bytes_read] = '\0';
+    }
     return bytes_read;
 }
 
@@ -1191,14 +1298,16 @@ int send_with_ack(const char* msg_type, const char* payload) {
     
     while (retries <= MAX_RETRIES && connection_active) {
         create_scp_message(send_buffer, msg_type, msg_id, payload);
-        printf("[CLIENT] SEND (try %d): %s\\n", retries + 1, send_buffer);
+        printf("[CLIENT] SEND (try %d): %s\n", retries + 1, send_buffer);
         send_message_thread_safe(send_buffer);
         
         // Wait for ACK with timeout
         struct timeval tv;
         tv.tv_sec = ACK_TIMEOUT;
         tv.tv_usec = 0;
+        pthread_mutex_lock(&socket_mutex);
         setsockopt(server_socket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+        pthread_mutex_unlock(&socket_mutex);
         
         memset(recv_buffer, 0, BUFFER_SIZE);
         int bytes_read = receive_message_thread_safe(recv_buffer);
@@ -1209,29 +1318,30 @@ int send_with_ack(const char* msg_type, const char* payload) {
             char ack_payload[BUFFER_SIZE];
             parse_scp_message(recv_buffer, ack_type, &ack_id, ack_payload);
             
-            printf("[CLIENT] RECV: %s\\n", recv_buffer);
+            printf("[CLIENT] RECV: %s\n", recv_buffer);
             
             if (strcmp(ack_type, "ACK") == 0 && ack_id == msg_id) {
-                printf("         ✓ ACK received for id=%d\\n\\n", msg_id);
+                printf("         ✓ ACK received for id=%d\n\n", msg_id);
                 return 1;
             }
         } else {
-            printf("         ⚠ TIMEOUT: No ACK received for id=%d\\n", msg_id);
+            printf("         ⚠ TIMEOUT: No ACK received for id=%d\n", msg_id);
             retries++;
             if (retries <= MAX_RETRIES) {
-                printf("         → Retrying... (%d/%d)\\n\\n", retries, MAX_RETRIES);
+                printf("         → Retrying... (%d/%d)\n\n", retries, MAX_RETRIES);
             }
         }
     }
     
     if (connection_active) {
-        printf("         ✗ FAILED: Message delivery failed after %d retries\\n\\n", MAX_RETRIES);
+        printf("         ✗ FAILED: Message delivery failed after %d retries\n\n", MAX_RETRIES);
     }
     return 0;
 }
 
 // Thread function for receiving messages
 void* receive_thread(void* arg) {
+    (void)arg;
     char buffer[BUFFER_SIZE];
     
     while (connection_active) {
@@ -1240,7 +1350,7 @@ void* receive_thread(void* arg) {
         
         if (bytes_read <= 0) {
             if (connection_active) {
-                printf("Server disconnected or error occurred\\n");
+                printf("Server disconnected or error occurred\n");
             }
             connection_active = 0;
             break;
@@ -1250,26 +1360,26 @@ void* receive_thread(void* arg) {
         int msg_id;
         parse_scp_message(buffer, msg_type, &msg_id, payload);
         
-        printf("[CLIENT] RECV: %s\\n", buffer);
+        printf("[CLIENT] RECV: %s\n", buffer);
         
         if (strcmp(msg_type, "ACK") == 0) {
-            printf("         ✓ ACK received for id=%d\\n\\n", msg_id);
+            printf("         ✓ ACK received for id=%d\n\n", msg_id);
             
         } else if (strcmp(msg_type, "MSG") == 0) {
-            printf("         → Server message: %s\\n", payload);
+            printf("         → Server message: %s\n", payload);
             
             // Send ACK for received message
             char ack[BUFFER_SIZE];
             create_scp_message(ack, "ACK", msg_id, "MSG_RECEIVED");
             send_message_thread_safe(ack);
-            printf("[CLIENT] SEND: %s\\n\\n", ack);
+            printf("[CLIENT] SEND: %s\n\n", ack);
             
         } else if (strcmp(msg_type, "BYE") == 0) {
-            printf("         → Server initiated disconnect\\n");
+            printf("         → Server initiated disconnect\n");
             char ack[BUFFER_SIZE];
             create_scp_message(ack, "ACK", msg_id, "DISCONNECT_ACK");
             send_message_thread_safe(ack);
-            printf("[CLIENT] SEND: %s\\n\\n", ack);
+            printf("[CLIENT] SEND: %s\n\n", ack);
             connection_active = 0;
             break;
         }
@@ -1280,12 +1390,13 @@ void* receive_thread(void* arg) {
 
 // Thread function for sending messages (user input)
 void* send_thread(void* arg) {
+    (void)arg;
     char user_input[BUFFER_SIZE];
     
-    printf("═══════════════════════════════════════════\\n");
-    printf("  Chat session started (Two-Way Mode)\\n");
-    printf("  Type 'quit' to exit\\n");
-    printf("═══════════════════════════════════════════\\n\\n");
+    printf("═══════════════════════════════════════════\n");
+    printf("  Chat session started (Two-Way Mode)\n");
+    printf("  Type 'quit' to exit\n");
+    printf("═══════════════════════════════════════════\n\n");
     
     while (connection_active) {
         printf("You: ");
@@ -1296,21 +1407,21 @@ void* send_thread(void* arg) {
         }
         
         // Remove newline character
-        user_input[strcspn(user_input, "\\n")] = 0;
+        user_input[strcspn(user_input, "\n")] = 0;
         
         if (strlen(user_input) == 0) {
             continue;
         }
         
         if (strcmp(user_input, "quit") == 0) {
-            printf("\\nSending disconnect request...\\n");
-            printf("─────────────────────────────────────────\\n");
+            printf("\nSending disconnect request...\n");
+            printf("─────────────────────────────────────────\n");
             send_with_ack("BYE", "DISCONNECT");
             connection_active = 0;
             break;
         }
         
-        printf("─────────────────────────────────────────\\n");
+        printf("─────────────────────────────────────────\n");
         send_with_ack("MSG", user_input);
     }
     
@@ -1322,20 +1433,25 @@ int main() {
     pthread_t recv_tid, send_tid;
     char username[100];
     
-    printf("═══════════════════════════════════════════\\n");
-    printf("  Two-Way SCP Client v1.1 (Multi-Threaded)\\n");
-    printf("═══════════════════════════════════════════\\n\\n");
+    printf("═══════════════════════════════════════════\n");
+    printf("  Two-Way SCP Client v1.1 (Multi-Threaded)\n");
+    printf("═══════════════════════════════════════════\n\n");
     
     // Get username
     printf("Enter your name: ");
     fflush(stdout);
     if (fgets(username, sizeof(username), stdin) == NULL) {
-        printf("Error reading username\\n");
+        printf("Error reading username\n");
         return 1;
     }
-    username[strcspn(username, "\\n")] = 0; // Remove newline
+    username[strcspn(username, "\n")] = 0; // Remove newline
     
-    printf("Connecting to server at 127.0.0.1:%d...\\n", PORT);
+    if (strlen(username) == 0) {
+        printf("Username cannot be empty\n");
+        return 1;
+    }
+    
+    printf("Connecting to server at 127.0.0.1:%d...\n", PORT);
     
     // Create socket
     if ((server_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -1355,15 +1471,16 @@ int main() {
     // Connect to server
     if (connect(server_socket, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
         perror("Connection failed");
+        printf("Make sure the server is running on port %d\n", PORT);
         return 1;
     }
     
-    printf("✓ Connected to server\\n\\n");
+    printf("✓ Connected to server\n\n");
     
     // Send HELLO message
-    printf("─────────────────────────────────────────\\n");
-    printf("Sending connection request...\\n");
-    printf("─────────────────────────────────────────\\n");
+    printf("─────────────────────────────────────────\n");
+    printf("Sending connection request...\n");
+    printf("─────────────────────────────────────────\n");
     send_with_ack("HELLO", username);
     
     // Create receive and send threads
@@ -1372,13 +1489,14 @@ int main() {
     
     // Wait for threads to complete
     pthread_join(recv_tid, NULL);
+    pthread_cancel(send_tid);
     pthread_join(send_tid, NULL);
     
     close(server_socket);
     
-    printf("\\n═══════════════════════════════════════════\\n");
-    printf("  Disconnected from server\\n");
-    printf("═══════════════════════════════════════════\\n");
+    printf("\n═══════════════════════════════════════════\n");
+    printf("  Disconnected from server\n");
+    printf("═══════════════════════════════════════════\n");
     
     return 0;
 }
@@ -1450,7 +1568,7 @@ close(server_socket);
 # Makefile for Two-Way Simple Chat Protocol (SCP)
 
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c99 -pthread
+CFLAGS = -Wall -Wextra -std=c11 -pthread
 TARGET_SERVER = scp_server_two_way
 TARGET_CLIENT = scp_client_two_way
 
@@ -1465,7 +1583,13 @@ $(TARGET_CLIENT): scp_client_two_way.c
 clean:
 	rm -f $(TARGET_SERVER) $(TARGET_CLIENT)
 
-.PHONY: all clean
+run-server: $(TARGET_SERVER)
+	./$(TARGET_SERVER)
+
+run-client: $(TARGET_CLIENT)
+	./$(TARGET_CLIENT)
+
+.PHONY: all clean run-server run-client
 </pre>
         </div>
 
